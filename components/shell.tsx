@@ -7,10 +7,12 @@ import type { ReactNode } from "react";
 export function Shell({
   bar,
   rail,
+  details,
   children,
 }: {
   bar: ReactNode;
   rail?: ReactNode;
+  details?: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -35,7 +37,9 @@ export function Shell({
           <section
             aria-label="Details"
             className="min-h-0 overflow-auto border-b border-border"
-          />
+          >
+            {details}
+          </section>
           <section aria-label="Chat" className="min-h-0 overflow-auto" />
         </aside>
       </div>

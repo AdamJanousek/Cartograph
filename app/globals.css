@@ -28,10 +28,23 @@
   --text-muted: light-dark(#71717a, #8b8b93);
   --accent: light-dark(#2563eb, #4d8dff);
   --accent-text: light-dark(#ffffff, #0b0b0c);
+  /* Direction. Green ←: imports arriving, i.e. fan-in and whatever imports
+     the selection. Yellow →: imports leaving, i.e. fan-out and whatever the
+     selection imports. */
+  --incoming: light-dark(#16a34a, #3fb950);
+  --outgoing: light-dark(#ca8a04, #facc15);
   /* Edges at rest: structure, not direction, so no colour. */
   --edge: light-dark(#c4c4ca, #3a3a40);
-  /* Files nothing has labelled. Grey on purpose: it isn't a kind. */
-  --kind-unlabelled: light-dark(#a1a1aa, #52525b);
+  /* File types. One hue per family, lightness separating members. */
+  --kind-ts: light-dark(#7c3aed, #a78bfa);
+  --kind-ts-module: light-dark(#a21caf, #e879f9);
+  --kind-dts: light-dark(#c4b5fd, #5b4a9e);
+  --kind-tsx: light-dark(#db2777, #f472b6);
+  --kind-js: light-dark(#0d9488, #2dd4bf);
+  --kind-js-module: light-dark(#5eead4, #0f766e);
+  --kind-jsx: light-dark(#dc2626, #f87171);
+  /* A path the parser read but no type above covers. Grey: it isn't a kind. */
+  --kind-other: light-dark(#a1a1aa, #52525b);
 }
 
 @theme inline {

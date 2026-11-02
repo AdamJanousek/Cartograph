@@ -1,29 +1,38 @@
 import dagre, { type EdgeLabel, type GraphLabel, type NodeLabel } from "@dagrejs/dagre";
 import type { Edge, FileNode } from "../parser/types.ts";
-import { type Folding, groupFan, liftEdges, relativeTo, shortLabels } from "./fold.ts";
+import { type Folding, groupFan, liftEdges, shortLabels } from "./fold.ts";
 
 // What the canvas draws, derived from the parser's files and edges plus which
-// folded nodes are open. Pure: the same inputs always give the same picture.
+// folded nodes are open and how far each open panel is scrolled. Pure: the
+// same inputs always give the same picture.
 
-/** The most file rows an open panel shows before it says how many more. */
+/** Rows an open panel shows at once; the rest scroll, and the panel never grows past this. */
 export const PANEL_ROWS = 12;
 
-/** Handle id an edge uses when it lands on the "more" line of a panel. */
-export const MORE = "more";
+/** Handle ids for edges whose file is scrolled out of view: above the visible rows, or below them. */
+export const ABOVE = "above";
+export const BELOW = "below";
 
 // Geometry. Labels are monospace, so width is a character count. Height carries
 // fan-in and nothing else, so a long name never reads as an important node.
 const CHAR = 7.3;
 const PAD_X = 20;
-const FOLDED_MIN_HEIGHT = 40;
-const FOLDED_HEIGHT_PER_STEP = 10;
-export const PANEL_HEADER = 30;
+const FOLDED_MIN_HEIGHT = 56;
+const FOLDED_HEIGHT_PER_STEP = 8;
+// Two lines: the folder's name, then its file count and fans.
+export const PANEL_HEADER = 40;
 export const PANEL_ROW = 20;
 const PANEL_MAX_WIDTH = 380;
+// Room for the counts beside a label. Fixed, so only the label moves the width:
+// a big count must not make a box look more important.
+// Folded nodes put the count and the fans on lines of their own.
+const FOLDED_META_CHARS = "←999 999→".length;
+const PANEL_META_CHARS = "999 files  ←999 999→".length;
+const PANEL_ROW_META_CHARS = "■  ←999 999→ ".length;
 
 export interface Row {
   path: string;
-  /** Path relative to the panel's folder. */
+  /** Shortest trailing part of the path unique among everything on screen. */
   label: string;
   fanIn: number;
   fanOut: number;
@@ -31,7 +40,7 @@ export interface Row {
 
 interface Placed {
   id: string;
-  /** Shortest label unique among the folded nodes and panels on screen. */
+  /** Shortest label unique among everything on screen. */
   label: string;
   fileCount: number;
   fanIn: number;
@@ -48,9 +57,13 @@ export interface FoldedItem extends Placed {
 
 export interface PanelItem extends Placed {
   kind: "panel";
+  /** Every file in the folder, most depended-on first. */
   rows: Row[];
-  /** Files in the folder beyond the rows shown. */
-  more: number;
+  /** Index of the first visible row. Rows [offset, offset + PANEL_ROWS) are in view. */
+  offset: number;
+  /** Rows scrolled out of view above and below. */
+  above: number;
+  below: number;
 }
 
 export type MapItem = FoldedItem | PanelItem;
@@ -59,7 +72,7 @@ export interface MapEdge {
   id: string;
   source: string;
   target: string;
-  /** Row path or MORE when the end is inside an open panel; null for a folded node. */
+  /** Row path, ABOVE or BELOW when the end is inside an open panel; null for a folded node. */
   sourceHandle: string | null;
   targetHandle: string | null;
   /** File-to-file edges this one stands for. */
@@ -69,6 +82,8 @@ export interface MapEdge {
 export interface MapModel {
   items: MapItem[];
   edges: MapEdge[];
+  /** File path to the handle it's drawn at, for every file inside an open panel. */
+  handleOf: ReadonlyMap<string, string>;
 }
 
 export function buildMap(
@@ -76,9 +91,25 @@ export function buildMap(
   edges: readonly Edge[],
   folding: Folding,
   open: ReadonlySet<string>,
+  /** First visible row per open panel; missing means the top. */
+  scroll: ReadonlyMap<string, number>,
 ): MapModel {
   const byPath = new Map(files.map((file) => [file.path, file]));
-  const labels = shortLabels(folding.nodes.map((node) => node.id));
+
+  // Rows first: labels have to be unique among everything on screen, rows
+  // included, so they can't be chosen until every row is known. Every row of
+  // an open panel counts, scrolled or not, so a label doesn't change as you
+  // scroll past another.
+  const rowsOf = new Map<string, FileNode[]>();
+  for (const node of folding.nodes) {
+    if (!open.has(node.id)) continue;
+    rowsOf.set(node.id, panelOrder(node.files, byPath));
+  }
+  const onScreen = [
+    ...folding.nodes.map((node) => node.id),
+    ...[...rowsOf.values()].flatMap((rows) => rows.map((row) => row.path)),
+  ];
+  const labels = shortLabels(onScreen);
 
   const unplaced: (Omit<FoldedItem, "x" | "y"> | Omit<PanelItem, "x" | "y">)[] = [];
   // File path -> the row it's drawn as, for files inside an open panel.
@@ -87,42 +118,46 @@ export function buildMap(
   for (const node of folding.nodes) {
     const fan = groupFan(new Set(node.files), edges);
     const label = labels.get(node.id)!;
-    const meta = `${node.files.length} files`;
     const base = { id: node.id, label, fileCount: node.files.length, fanIn: fan.fanIn, fanOut: fan.fanOut };
+    const panel = rowsOf.get(node.id);
 
-    if (!open.has(node.id)) {
+    if (!panel) {
       unplaced.push({
         ...base,
         kind: "folded",
-        width: textWidth(Math.max(label.length, meta.length)),
+        width: textWidth(Math.max(label.length, FOLDED_META_CHARS)),
         height: FOLDED_MIN_HEIGHT + FOLDED_HEIGHT_PER_STEP * Math.log2(1 + fan.fanIn),
       });
       continue;
     }
 
-    // Most depended-on first, so the rows that fit are the ones that matter most.
-    const sorted = node.files
-      .map((path) => byPath.get(path)!)
-      .sort((a, b) => b.fanIn - a.fanIn || (a.path < b.path ? -1 : 1));
-    const rows = sorted.slice(0, PANEL_ROWS).map((file) => ({
+    const rows = panel.map((file) => ({
       path: file.path,
-      label: relativeTo(node.id, file.path),
+      label: labels.get(file.path)!,
       fanIn: file.fanIn,
       fanOut: file.fanOut,
     }));
-    const more = sorted.length - rows.length;
-    for (const file of sorted) handleOf.set(file.path, MORE);
-    for (const row of rows) handleOf.set(row.path, row.path);
+    const visible = Math.min(rows.length, PANEL_ROWS);
+    const offset = Math.min(Math.max(0, scroll.get(node.id) ?? 0), rows.length - visible);
+    rows.forEach((row, index) =>
+      handleOf.set(row.path, index < offset ? ABOVE : index >= offset + visible ? BELOW : row.path),
+    );
 
-    const header = `${label}  ${meta}  in ${fan.fanIn}  out ${fan.fanOut}`;
-    const widest = Math.max(header.length, ...rows.map((row) => row.label.length + 10));
+    const widest = Math.max(
+      label.length,
+      PANEL_META_CHARS,
+      ...rows.map((row) => row.label.length + PANEL_ROW_META_CHARS),
+    );
     unplaced.push({
       ...base,
       kind: "panel",
       rows,
-      more,
+      offset,
+      above: offset,
+      below: rows.length - offset - visible,
       width: Math.min(PANEL_MAX_WIDTH, textWidth(widest)),
-      height: PANEL_HEADER + PANEL_ROW * (rows.length + (more > 0 ? 1 : 0)) + 4,
+      // Fixed whatever the scroll, so scrolling never moves anything else.
+      height: panelHeight(rows.length),
     });
   }
 
@@ -147,7 +182,21 @@ export function buildMap(
   // Rows in the same panel are inside one box; there's nowhere to draw between them.
   const mapEdges = lifted.filter((edge) => edge.source !== edge.target);
 
-  return { items: layout(unplaced, mapEdges), edges: mapEdges };
+  return { items: layout(unplaced, mapEdges), edges: mapEdges, handleOf };
+}
+
+/**
+ * An open panel's rows in the order they're listed. Most depended-on first, so
+ * the rows in view when it opens are the ones that matter most.
+ */
+export function panelOrder(paths: readonly string[], byPath: ReadonlyMap<string, FileNode>): FileNode[] {
+  return paths.map((path) => byPath.get(path)!).sort((a, b) => b.fanIn - a.fanIn || (a.path < b.path ? -1 : 1));
+}
+
+/** Header, the rows in view, and a footer line counting what's scrolled out when anything can be. */
+export function panelHeight(rowCount: number): number {
+  const scrolls = rowCount > PANEL_ROWS;
+  return PANEL_HEADER + PANEL_ROW * (Math.min(rowCount, PANEL_ROWS) + (scrolls ? 1 : 0)) + 4;
 }
 
 function layout(

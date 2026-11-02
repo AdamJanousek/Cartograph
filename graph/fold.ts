@@ -144,11 +144,6 @@ export function shortLabels(ids: readonly string[]): Map<string, string> {
   return labels;
 }
 
-/** A file's path relative to the directory a node stands for. */
-export function relativeTo(nodeId: string, file: string): string {
-  return nodeId === ROOT ? file : file.slice(nodeId.length + 1);
-}
-
 function parentOf(dir: string): string {
   const slash = dir.lastIndexOf("/");
   return slash === -1 ? ROOT : dir.slice(0, slash);

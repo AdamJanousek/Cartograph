@@ -1,25 +1,32 @@
 import type { FileNode } from "../parser/types.ts";
 
+/**
+ * File types the rail can show, longest suffix first so ".d.ts" wins over
+ * ".ts". These are the parser's source extensions plus declaration files; a
+ * path matching none of them would be a parser change, and shows as "other".
+ */
+const TYPES = [".d.ts", ".tsx", ".ts", ".mts", ".cts", ".jsx", ".js", ".mjs", ".cjs"] as const;
+
+export type FileType = (typeof TYPES)[number] | "other";
+
 export interface Category {
-  /** The adapter's role, or null for files nothing has labelled. */
-  role: string | null;
+  type: FileType;
   count: number;
 }
 
-/**
- * Files grouped by the role the adapter gave them. Files with no role stay one
- * unlabelled group rather than being sorted by extension or folder — that
- * would be a category nobody actually determined. Largest first, ties by name,
- * unlabelled last.
- */
+/** A file's type, read off the end of its path. */
+export function fileType(path: string): FileType {
+  return TYPES.find((type) => path.endsWith(type)) ?? "other";
+}
+
+/** Files grouped by type. Largest first, ties by name. */
 export function categorize(files: readonly FileNode[]): Category[] {
-  const counts = new Map<string | null, number>();
-  for (const file of files) counts.set(file.role, (counts.get(file.role) ?? 0) + 1);
+  const counts = new Map<FileType, number>();
+  for (const file of files) {
+    const type = fileType(file.path);
+    counts.set(type, (counts.get(type) ?? 0) + 1);
+  }
   return [...counts]
-    .map(([role, count]) => ({ role, count }))
-    .sort((a, b) => {
-      if (a.role === null) return 1;
-      if (b.role === null) return -1;
-      return b.count - a.count || (a.role < b.role ? -1 : 1);
-    });
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count || (a.type < b.type ? -1 : 1));
 }
