@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, type ReactNode, use, useMemo, useState } from "react";
+import type { FileType } from "@/graph/categories";
 import { type Folding, fold } from "@/graph/fold";
 import { PANEL_ROWS, panelOrder } from "@/graph/map";
 import type { Selection } from "@/graph/selection";
@@ -26,6 +27,9 @@ interface MapState {
   hover: Hover | null;
   /** Bumped only when a folder opens; closing one leaves the view where it is. */
   opened: number;
+  /** The rail category picked: files of any other type dim, and stay where they are. */
+  category: FileType | null;
+  setCategory: (category: FileType | null) => void;
   setSelection: (selection: Selection | null) => void;
   setHover: (hover: Hover | null) => void;
   openFolder: (id: string) => void;
@@ -59,6 +63,7 @@ export function MapStateProvider({
   const [selection, setSelection] = useState<Selection | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [opened, setOpened] = useState(0);
+  const [category, setCategory] = useState<FileType | null>(null);
 
   const state = useMemo<MapState>(() => {
     const openFolder = (id: string) => {
@@ -76,6 +81,8 @@ export function MapStateProvider({
       selection,
       hover,
       opened,
+      category,
+      setCategory,
       setSelection,
       setHover,
       openFolder,
@@ -106,7 +113,7 @@ export function MapStateProvider({
         setSelection({ kind: "row", node, path });
       },
     };
-  }, [files, edges, folding, byPath, open, scroll, selection, hover, opened]);
+  }, [files, edges, folding, byPath, open, scroll, selection, hover, opened, category]);
 
   return <MapStateContext value={state}>{children}</MapStateContext>;
 }

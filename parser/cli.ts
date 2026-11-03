@@ -41,7 +41,10 @@ function print(result: ParseResult): void {
   const folders = new Set(result.files.map((file) => file.folder));
 
   console.log(`root     ${result.root}`);
-  console.log(`adapter  ${result.adapter}`);
+  console.log(`frameworks  ${result.frameworks.join(", ") || "none"}`);
+  const roles = new Map<string, number>();
+  for (const file of result.files) if (file.role) roles.set(file.role, (roles.get(file.role) ?? 0) + 1);
+  console.log(`roles    ${[...roles].map(([role, n]) => `${role} ${n}`).join("  ") || "none"}  ·  unidentified ${result.files.filter((file) => !file.role).length}`);
   console.log(`files    found ${files.found}  parsed ${files.parsed}  skipped ${files.skipped}`);
   for (const skip of files.skips) console.log(`  skipped  ${skip.path}  ${skip.reason}: ${skip.detail}`);
   for (const dir of files.excludedDirectories) console.log(`  not entered  ${dir.path}/  ${dir.reason}`);

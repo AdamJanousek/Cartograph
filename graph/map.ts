@@ -25,9 +25,10 @@ export const PANEL_ROW = 20;
 const PANEL_MAX_WIDTH = 380;
 // Room for the counts beside a label. Fixed, so only the label moves the width:
 // a big count must not make a box look more important.
-// Folded nodes put the count and the fans on lines of their own.
-const FOLDED_META_CHARS = "←999 999→".length;
-const PANEL_META_CHARS = "999 files  ←999 999→".length;
+// Folded nodes put the count and the fans on lines of their own. The count
+// line is sized for its longest form, a rail category's matches.
+const FOLDED_META_CHARS = "■ 999 of 999".length;
+const PANEL_META_CHARS = "■ 999 of 999  ←999 999→".length;
 const PANEL_ROW_META_CHARS = "■  ←999 999→ ".length;
 
 export interface Row {

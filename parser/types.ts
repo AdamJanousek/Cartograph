@@ -1,7 +1,7 @@
 // The parser's output. Everything downstream reads this shape, so changing it
 // means bumping SCHEMA_VERSION and updating the validator in the same change.
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export type EdgeKind = "import" | "re-export" | "dynamic-import";
 
@@ -118,8 +118,8 @@ export interface ParseResult {
   schemaVersion: typeof SCHEMA_VERSION;
   /** Absolute path that was parsed. */
   root: string;
-  /** Name of the framework adapter that was applied. */
-  adapter: string;
+  /** Frameworks detected in any of the repository's packages, sorted. Empty when none. */
+  frameworks: string[];
   files: FileNode[];
   edges: Edge[];
   coverage: Coverage;

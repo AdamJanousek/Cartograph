@@ -54,7 +54,7 @@ function decodeResult(value: unknown, at: string): ParseResult {
   return {
     schemaVersion: SCHEMA_VERSION,
     root: string(o.root, `${at}.root`),
-    adapter: string(o.adapter, `${at}.adapter`),
+    frameworks: array(o.frameworks, `${at}.frameworks`, string),
     files: array(o.files, `${at}.files`, decodeFile),
     edges: array(o.edges, `${at}.edges`, decodeEdge),
     coverage: decodeCoverage(o.coverage, `${at}.coverage`),

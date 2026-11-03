@@ -12,7 +12,7 @@ import {
   useUpdateNodeInternals,
 } from "@xyflow/react";
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
-import { pathColour } from "@/components/file-type";
+import { pathColour, typeColour } from "@/components/file-type";
 import { useMapState } from "@/components/map-state";
 import {
   buildMap,
@@ -24,6 +24,7 @@ import {
   PANEL_ROWS,
   type PanelItem,
 } from "@/graph/map";
+import { type FileType, fileType } from "@/graph/categories";
 import { endKey, highlight, type Relation, rowKey } from "@/graph/selection";
 
 type FoldedNodeData = {
@@ -33,6 +34,8 @@ type FoldedNodeData = {
   relation: Relation | null;
   /** Pointed at from the detail pane. */
   marked: boolean;
+  /** Files of the rail's category inside; null when no category is picked. */
+  matches: Match | null;
 };
 type PanelNodeData = {
   item: PanelItem;
@@ -47,7 +50,11 @@ type PanelNodeData = {
   marked: boolean;
   /** The row, or above/below line, pointed at from the detail pane. */
   markedHandle: string | null;
+  matches: Match | null;
+  /** Rows, and above/below lines, holding no file of the rail's category. Empty when none is picked. */
+  outside: ReadonlySet<string>;
 };
+type Match = { type: FileType; count: number };
 type MapNode = Node<FoldedNodeData, "folded"> | Node<PanelNodeData, "panel">;
 
 const DIM = 0.25;
@@ -68,7 +75,7 @@ export function DependencyMap() {
 }
 
 function Canvas() {
-  const { files, edges, folding, open, scroll, selection, hover, opened, setSelection, setHover, openFolder } =
+  const { files, edges, folding, open, scroll, selection, hover, opened, category, setSelection, setHover, openFolder } =
     useMapState();
   const { fitView, getZoom } = useReactFlow();
 
@@ -89,6 +96,27 @@ function Canvas() {
     return node === undefined ? null : { node, handle: model.handleOf.get(hover.path) ?? null };
   }, [hover, folding, model]);
 
+  // The rail's category: how many of each node's files are of it, and which
+  // ends on screen hold none. Every file sits in exactly one node, so the
+  // counts add up to the rail's.
+  const filter = useMemo(() => {
+    if (category === null) return null;
+    const matches = new Map(
+      folding.nodes.map((node) => [node.id, node.files.filter((path) => fileType(path) === category).length]),
+    );
+    const outside = new Map<string, Set<string>>();
+    for (const item of model.items) {
+      if (item.kind !== "panel") continue;
+      const visible = Math.min(item.rows.length, PANEL_ROWS);
+      const some = (rows: typeof item.rows) => rows.some((row) => fileType(row.path) === category);
+      const set = new Set(item.rows.filter((row) => fileType(row.path) !== category).map((row) => row.path));
+      if (!some(item.rows.slice(0, item.offset))) set.add(ABOVE);
+      if (!some(item.rows.slice(item.offset + visible))) set.add(BELOW);
+      outside.set(item.id, set);
+    }
+    return { type: category, matches, outside } satisfies Filter;
+  }, [category, folding, model]);
+
   const nodes = useMemo<MapNode[]>(
     () =>
       model.items.map((item) => {
@@ -101,12 +129,13 @@ function Canvas() {
           // box, never across its rows.
           zIndex: NODE_Z,
         };
-        const dimmed = lit !== null && !lit.nodes.has(item.id);
+        const matches = filter && { type: filter.type, count: filter.matches.get(item.id) ?? 0 };
+        const dimmed = (lit !== null && !lit.nodes.has(item.id)) || matches?.count === 0;
         const selected = selection?.kind === "node" && selection.id === item.id;
         const marked = mark?.node === item.id && mark.handle === null;
         if (item.kind === "folded") {
           const relation = lit?.relations.get(endKey(item.id, null)) ?? null;
-          return { ...common, type: "folded", data: { item, dimmed, selected, relation, marked } };
+          return { ...common, type: "folded", data: { item, dimmed, selected, relation, marked, matches } };
         }
         const whole = lit === null || lit.wholePanels.has(item.id);
         const keptRows = whole
@@ -126,10 +155,21 @@ function Canvas() {
         return {
           ...common,
           type: "panel",
-          data: { item, dimmed, selected, keptRows, selectedRow, relations, marked, markedHandle },
+          data: {
+            item,
+            dimmed,
+            selected,
+            keptRows,
+            selectedRow,
+            relations,
+            marked,
+            markedHandle,
+            matches,
+            outside: filter?.outside.get(item.id) ?? NONE,
+          },
         };
       }),
-    [model, lit, selection, mark],
+    [model, lit, selection, mark, filter],
   );
 
   const flowEdges = useMemo(
@@ -139,9 +179,12 @@ function Canvas() {
         // Direction is the one thing edge colour means, and the far end wears
         // the same colour: green for what imports the selection, yellow for
         // what the selection imports.
+        // With a category picked, an edge stays only between ends that hold some of it.
+        const away =
+          filteredOut(filter, edge.source, edge.sourceHandle) || filteredOut(filter, edge.target, edge.targetHandle);
         const style = direction
-          ? { stroke: RELATION_COLOUR[direction], strokeWidth: 1.1 }
-          : { stroke: "var(--edge)", strokeWidth: 0.75, opacity: lit ? DIM_EDGE : 1 };
+          ? { stroke: RELATION_COLOUR[direction], strokeWidth: 1.1, opacity: away ? DIM : 1 }
+          : { stroke: "var(--edge)", strokeWidth: 0.75, opacity: lit || away ? DIM_EDGE : 1 };
         return {
           id: edge.id,
           source: edge.source,
@@ -153,7 +196,7 @@ function Canvas() {
           zIndex: direction ? 1 : 0,
         };
       }),
-    [model, lit],
+    [model, lit, filter],
   );
 
   // Runs after the render that carries the new panel, so the fit measures the
@@ -196,7 +239,7 @@ function Canvas() {
 }
 
 function FoldedNode({
-  data: { item, dimmed, selected, relation, marked },
+  data: { item, dimmed, selected, relation, marked, matches },
 }: NodeProps<Node<FoldedNodeData, "folded">>) {
   return (
     <div
@@ -212,7 +255,7 @@ function FoldedNode({
         {item.label}
       </span>
       <span className="text-[11px] leading-4 text-text-muted tabular-nums" style={fade(dimmed)}>
-        {item.fileCount} files
+        <FileCount count={item.fileCount} matches={matches} />
       </span>
       <Fan fanIn={item.fanIn} fanOut={item.fanOut} className="text-[11px] leading-4" style={fade(dimmed)} />
       <Handle type="source" position={Position.Right} isConnectable={false} style={hidden} />
@@ -222,12 +265,12 @@ function FoldedNode({
 
 function PanelNode({
   id,
-  data: { item, dimmed, selected, keptRows, selectedRow, relations, marked, markedHandle },
+  data: { item, dimmed, selected, keptRows, selectedRow, relations, marked, markedHandle, matches, outside },
 }: NodeProps<Node<PanelNodeData, "panel">>) {
   const { selection, setSelection, setHover, closeFolder, scrollPanel } = useMapState();
   const updateNodeInternals = useUpdateNodeInternals();
   const list = useRef<HTMLDivElement>(null);
-  const rowDimmed = (handle: string) => dimmed || (keptRows !== null && !keptRows.has(handle));
+  const rowDimmed = (handle: string) => dimmed || (keptRows !== null && !keptRows.has(handle)) || outside.has(handle);
   const visible = Math.min(item.rows.length, PANEL_ROWS);
   const scrolls = item.rows.length > PANEL_ROWS;
 
@@ -280,7 +323,9 @@ function PanelNode({
           {item.label}
         </button>
         <span className="flex gap-2 text-[11px] leading-4 text-text-muted" style={fade(dimmed)}>
-          <span className="tabular-nums">{item.fileCount} files</span>
+          <span className="tabular-nums">
+            <FileCount count={item.fileCount} matches={matches} />
+          </span>
           <Fan fanIn={item.fanIn} fanOut={item.fanOut} />
         </span>
       </div>
@@ -358,6 +403,28 @@ function PanelNode({
       {item.below > 0 && <RowHandles id={BELOW} top={PANEL_HEADER + PANEL_ROW * visible - 1} />}
     </div>
   );
+}
+
+// With a category picked, how many of the node's files are of it, marked with
+// the category's own swatch.
+function FileCount({ count, matches }: { count: number; matches: Match | null }) {
+  if (!matches) return <>{count} files</>;
+  return (
+    <span className="inline-flex items-center gap-1" title={`${matches.count} of ${count} files are ${matches.type}`}>
+      <span aria-hidden className="size-2 rounded-[2px]" style={{ background: typeColour(matches.type) }} />
+      {matches.count} of {count}
+    </span>
+  );
+}
+
+const NONE: ReadonlySet<string> = new Set();
+
+type Filter = { type: FileType; matches: ReadonlyMap<string, number>; outside: ReadonlyMap<string, ReadonlySet<string>> };
+
+/** An end with nothing of the category in it: a folded node with no matches, or a row or line outside it. */
+function filteredOut(filter: Filter | null, node: string, handle: string | null): boolean {
+  if (filter === null) return false;
+  return handle === null ? filter.matches.get(node) === 0 : (filter.outside.get(node)?.has(handle) ?? false);
 }
 
 // ←n in green is what imports this; n→ in yellow is what this imports. The
