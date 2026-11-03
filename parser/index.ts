@@ -2,7 +2,7 @@ import { statSync } from "node:fs";
 import { resolve } from "node:path";
 import { Project } from "ts-morph";
 import { computeFan, dedupeEdges } from "../graph/edges.ts";
-import { chooseAdapter } from "./adapters.ts";
+import { assignRoles } from "./adapters.ts";
 import { ConfigLookup, indexPackages } from "./config.ts";
 import { extractImports, type RawImport } from "./imports.ts";
 import { Resolver } from "./resolve.ts";
@@ -82,19 +82,19 @@ export function parseRepository(directory: string): ParseResult {
   );
   const fan = computeFan([...parsedPaths], edges);
 
-  const adapter = chooseAdapter({ root, files: [...parsedPaths], packageJsons: packages.manifests });
+  const roles = assignRoles({ root, files: [...parsedPaths], packageJsons: packages.manifests });
 
   return {
     schemaVersion: SCHEMA_VERSION,
     root,
-    adapter: adapter.name,
+    frameworks: roles.frameworks,
     files: parsed.map(({ file }) => ({
       path: file.path,
       folder: file.folder,
       lines: file.lines,
       bytes: file.bytes,
       hash: file.hash,
-      role: adapter.role(file.path),
+      role: roles.role(file.path),
       fanIn: fan.get(file.path)?.fanIn ?? 0,
       fanOut: fan.get(file.path)?.fanOut ?? 0,
     })),

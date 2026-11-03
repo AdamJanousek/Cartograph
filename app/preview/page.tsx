@@ -1,10 +1,12 @@
 import { CategoryRail } from "@/components/category-rail";
 import { DependencyMap } from "@/components/dependency-map";
 import { DetailPane } from "@/components/detail-pane";
+import { InsightsPanel } from "@/components/insights-panel";
 import { MapStateProvider } from "@/components/map-state";
 import { Shell } from "@/components/shell";
 import { ThemeControl } from "@/components/theme";
 import { categorize } from "@/graph/categories";
+import { findInsights } from "@/graph/insights";
 import { summarize } from "@/graph/summary";
 import { previewName, previewResult } from "@/preview/data";
 
@@ -23,7 +25,12 @@ export default function PreviewPage() {
             </div>
           </>
         }
-        rail={<CategoryRail categories={categorize(previewResult.files)} />}
+        rail={
+          <>
+            <CategoryRail categories={categorize(previewResult.files)} />
+            <InsightsPanel insights={findInsights(previewResult.files, previewResult.edges)} />
+          </>
+        }
         details={<DetailPane name={previewName} summary={summarize(previewResult)} />}
       >
         <DependencyMap />

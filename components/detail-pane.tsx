@@ -3,6 +3,7 @@
 import { type ReactNode, useMemo, useState } from "react";
 import { typeColour } from "@/components/file-type";
 import { useMapState } from "@/components/map-state";
+import { MARK, PathRow, split, usePathTarget } from "@/components/path-row";
 import {
   type FileDetail,
   type FolderDetail,
@@ -12,6 +13,7 @@ import {
   type RankedFile,
   type RepositorySummary,
 } from "@/graph/summary";
+import { DEFAULT_DEPTH, type Direction, type Reached, reach } from "@/graph/reach";
 
 // The right-hand pane. With nothing selected it describes the repository; with
 // a file or folder selected it describes that. Everything here is computed from
@@ -25,8 +27,6 @@ const SUMMARY_ROWS = 10;
 // Green ← is what arrives (importers), yellow → what leaves (imports), as on the map.
 const INCOMING = "var(--incoming)";
 const OUTGOING = "var(--outgoing)";
-
-const MARK = { outline: "1px solid var(--accent)", outlineOffset: -1 } as const;
 
 export function DetailPane({ name, summary }: { name: string; summary: RepositorySummary }) {
   const { selection, folding, byPath, edges } = useMapState();
@@ -179,8 +179,24 @@ function RankedList({
   );
 }
 
+const WALKS: { direction: Direction; label: string; colour: string }[] = [
+  { direction: "dependents", label: "Blast radius", colour: INCOMING },
+  { direction: "dependencies", label: "Dependency chain", colour: OUTGOING },
+];
+
 function FileView({ detail }: { detail: FileDetail }) {
   const { file, type, imports, importers } = detail;
+  const { edges } = useMapState();
+  // Keyed to the file, so selecting another one — including a file in the
+  // walk's own list — shows that file's structure rather than a stale walk.
+  const [walk, setWalk] = useState<{ path: string; direction: Direction } | null>(null);
+  const active = walk?.path === file.path ? walk : null;
+  // Arithmetic over edges already in the browser: computed during render,
+  // so the list is there on the click that asks for it.
+  const reached = useMemo(
+    () => (active ? reach(file.path, edges, active.direction) : null),
+    [active, file.path, edges],
+  );
   return (
     <>
       <Facts>
@@ -191,6 +207,8 @@ function FileView({ detail }: { detail: FileDetail }) {
           </span>
         </Fact>
         <Fact label="Folder">{file.folder === "." ? "/" : file.folder}</Fact>
+        {/* Only when a convention named it; "no role" would read as a finding. */}
+        {file.role !== null && <Fact label="Role">{file.role}</Fact>}
         <Fact label="Length">{file.lines} lines</Fact>
         {/* The same lists' lengths as the sections below, so the two always agree. */}
         <Fact label="Depends on">
@@ -200,6 +218,29 @@ function FileView({ detail }: { detail: FileDetail }) {
           <span style={{ color: INCOMING }}>{importers.length}</span> files
         </Fact>
       </Facts>
+      <div className="flex gap-2 px-3 pb-3">
+        {WALKS.map(({ direction, label }) => {
+          const on = active?.direction === direction;
+          return (
+            <button
+              key={direction}
+              type="button"
+              aria-pressed={on}
+              onClick={() => setWalk(on ? null : { path: file.path, direction })}
+              className={`h-6 cursor-pointer rounded-[3px] border px-2 text-[12px] ${on ? "border-accent text-accent" : "border-border hover:border-text-muted"}`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      {active && reached && (
+        <WalkList
+          title={WALKS.find((w) => w.direction === active.direction)!.label}
+          colour={WALKS.find((w) => w.direction === active.direction)!.colour}
+          reached={reached}
+        />
+      )}
       <NeighbourList title="Imports" neighbours={imports} count={<span style={{ color: OUTGOING }}>{imports.length}→</span>} />
       <NeighbourList
         title="Imported by"
@@ -207,6 +248,44 @@ function FileView({ detail }: { detail: FileDetail }) {
         count={<span style={{ color: INCOMING }}>←{importers.length}</span>}
       />
     </>
+  );
+}
+
+/** A walk's result, by distance: depth 1 is the same list as Imports or Imported by. */
+function WalkList({
+  title,
+  colour,
+  reached,
+}: {
+  title: string;
+  colour: string;
+  reached: readonly Reached[];
+}) {
+  const levels = Array.from({ length: DEFAULT_DEPTH }, (_, index) => reached.filter((file) => file.depth === index + 1));
+  return (
+    <Section title={title} count={<span style={{ color: colour }}>{reached.length}</span>}>
+      {reached.length === 0 ? (
+        <p className="px-3 text-[12px] text-text-muted">none</p>
+      ) : (
+        levels.map((files, index) =>
+          files.length === 0 ? null : (
+            <div key={index}>
+              <h4 className="flex h-6 items-center justify-between px-3 text-[11px] text-text-muted">
+                {index === 0 ? "direct" : `${index + 1} steps away`}
+                <span className="font-mono tabular-nums">{files.length}</span>
+              </h4>
+              <ul>
+                {files.map((file) => (
+                  <li key={file.path}>
+                    <PathRow path={file.path} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ),
+        )
+      )}
+    </Section>
   );
 }
 
@@ -303,28 +382,6 @@ function Section({ title, count, children }: { title: string; count: ReactNode; 
   );
 }
 
-/** Pointer handlers shared by every file path in the pane. */
-function usePathTarget(path: string) {
-  const { hover, setHover, selectFile, folding } = useMapState();
-  const marked =
-    hover !== null && (hover.kind === "file" ? hover.path === path : folding.nodeOf.get(path) === hover.id);
-  return {
-    marked,
-    onClick: () => {
-      selectFile(path);
-      // The row under the pointer is about to be a different file.
-      setHover(null);
-    },
-    onMouseEnter: () => setHover({ kind: "file", path }),
-    onMouseLeave: () => setHover(null),
-  };
-}
-
-function split(path: string): [dir: string, base: string] {
-  const slash = path.lastIndexOf("/");
-  return [path.slice(0, slash + 1), path.slice(slash + 1)];
-}
-
 /** The selected file's own path: wraps rather than truncates, name brighter than folder. */
 function TitlePath({ path }: { path: string }) {
   const { marked, ...handlers } = usePathTarget(path);
@@ -343,27 +400,3 @@ function TitlePath({ path }: { path: string }) {
   );
 }
 
-/**
- * A file path in a list. Clicking moves the map's selection to it; hovering
- * marks it on the map; it's marked here in turn when it, or the folded node
- * holding it, is hovered on the map. The folder truncates, the name never does.
- */
-function PathRow({ path, trailing }: { path: string; trailing?: ReactNode }) {
-  const { marked, ...handlers } = usePathTarget(path);
-  const [dir, base] = split(path);
-  return (
-    <button
-      type="button"
-      title={path}
-      {...handlers}
-      className={`flex h-6 w-full cursor-pointer items-center gap-3 px-3 text-left font-mono text-[12px] hover:bg-surface-raised ${marked ? "bg-surface-raised" : ""}`}
-      style={marked ? MARK : undefined}
-    >
-      <span className="flex min-w-0 flex-1">
-        <span className="min-w-0 truncate text-text-muted">{dir}</span>
-        <span className="shrink-0">{base}</span>
-      </span>
-      {trailing !== undefined && <span className="shrink-0 tabular-nums">{trailing}</span>}
-    </button>
-  );
-}

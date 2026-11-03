@@ -11,7 +11,7 @@ export interface RankedFile {
 }
 
 export interface RepositorySummary {
-  /** The adapter that was applied; null when none recognised a framework. */
+  /** Frameworks detected in any package; null when none was. */
   framework: string | null;
   files: number;
   /** Source files the walk found but couldn't parse. */
@@ -31,7 +31,7 @@ export interface RepositorySummary {
 export function summarize(result: ParseResult): RepositorySummary {
   const { files, coverage } = result;
   return {
-    framework: result.adapter === "none" ? null : result.adapter,
+    framework: result.frameworks.length === 0 ? null : result.frameworks.join(", "),
     files: files.length,
     skipped: coverage.files.skipped,
     imports: coverage.imports.total,

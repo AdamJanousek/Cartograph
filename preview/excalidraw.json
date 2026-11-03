@@ -1,7 +1,10 @@
 {
-  "schemaVersion": 1,
-  "root": "/private/tmp/claude-501/-Users-adam-Programming-Cartographer/6d7f0333-8f76-436b-82a7-a3b6e09775a5/scratchpad/excalidraw",
-  "adapter": "none",
+  "schemaVersion": 2,
+  "root": "/private/tmp/claude-501/-Users-adam-Programming-Cartographer/1d4fd9d9-e483-447a-a138-a280cd99512f/scratchpad/excalidraw",
+  "frameworks": [
+    "docusaurus",
+    "next.js"
+  ],
   "files": [
     {
       "path": ".lintstagedrc.js",
@@ -9,7 +12,7 @@
       "lines": 14,
       "bytes": 412,
       "hash": "529f13f34b64f697ede3c60611ed3b4312eeb65bd97b1d451d03b40b5cde86d2",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -19,7 +22,7 @@
       "lines": 3,
       "bytes": 89,
       "hash": "543f91b48879d760be7a7c722f9fa482e471d6c197418ce6f77d1c058e28914d",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -29,7 +32,7 @@
       "lines": 178,
       "bytes": 4550,
       "hash": "9b55059ee4e201e33ec59468a7d55cd6cada7ad594aa6ef382b94f08aef19d34",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -39,7 +42,7 @@
       "lines": 133,
       "bytes": 4103,
       "hash": "3bc26bb43cb2e063c815c03844c81d160511bb1220cfad5fd0689b83e28a2aa8",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -89,7 +92,7 @@
       "lines": 36,
       "bytes": 1068,
       "hash": "d36efd879e72ec3b0af71ca44c7007437b17c1af087ca9c5f588a91e361d2d96",
-      "role": null,
+      "role": "page",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -99,7 +102,7 @@
       "lines": 11,
       "bytes": 382,
       "hash": "8e67f8f2da8a4d34a7b34b03893b59c92dc263c100615f3487fb5c036bc8ebe1",
-      "role": null,
+      "role": "theme override",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -109,7 +112,7 @@
       "lines": 39,
       "bytes": 1317,
       "hash": "fb4706bc16f986b29e30d560e0581e74e1f05ff996734e56b948c18fbb0cc56c",
-      "role": null,
+      "role": "theme override",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -119,7 +122,7 @@
       "lines": 12,
       "bytes": 491,
       "hash": "9e2516116ce70e858596c53a42965d6d9ac5ff6b84c42ffb1a89c7771ce71894",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -129,7 +132,7 @@
       "lines": 11,
       "bytes": 169,
       "hash": "81249a705e36334b8526c3b0d9dc77075d9afe928d96e490fd6d9e66400ba480",
-      "role": null,
+      "role": "layout",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -139,7 +142,7 @@
       "lines": 27,
       "bytes": 796,
       "hash": "8afd1f91a3faaa8360f4a23a2bcd9f4ea56da30f28481e7e462557ffb8232ba8",
-      "role": null,
+      "role": "page",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -159,7 +162,7 @@
       "lines": 23,
       "bytes": 570,
       "hash": "1d7298e872269239a40245130967cfb2f51ee71d9f6ccd979abc7dae44de6881",
-      "role": null,
+      "role": "page",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -239,7 +242,7 @@
       "lines": 19,
       "bytes": 483,
       "hash": "e3439fad99e3c65326f7e63fdde1368050a061c34b7bd94c441fec032ce7ec23",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -589,7 +592,7 @@
       "lines": 6,
       "bytes": 141,
       "hash": "341ca8622896b6c256caa69ae3ef3da7c0001d6db2d2db47d23499df1391f764",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -649,7 +652,7 @@
       "lines": 59,
       "bytes": 1814,
       "hash": "b59b3d064810a74dc0c736e7a3b393b672b5ff4d351e93a4a88363dcd5a857ed",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -659,7 +662,7 @@
       "lines": 39,
       "bytes": 1079,
       "hash": "ffed4f66e777ebf305cedd05af79d0f74da5ceffdecd2049781e44664db9c2a6",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -669,7 +672,7 @@
       "lines": 252,
       "bytes": 7998,
       "hash": "6f63de466dbfd6a0bd0ffa7b35bf3a09dfb359b9fa63b2b9dfa16cbb14c1888d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -679,7 +682,7 @@
       "lines": 22,
       "bytes": 623,
       "hash": "c403f2179f8520fb0b00f41844bd9d60e91e98d8becc511637167cf5da2e49a0",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -699,7 +702,7 @@
       "lines": 49,
       "bytes": 1207,
       "hash": "8ccc1e340ac9df8ff15d442d342b768a60d11de59cf33af26646a18949f2ad0b",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -709,7 +712,7 @@
       "lines": 493,
       "bytes": 16048,
       "hash": "58e5af28af49f167c7c4bc177e514ac28bed9faee72f9d79e56677e5ae19f49c",
-      "role": null,
+      "role": "config",
       "fanIn": 1,
       "fanOut": 2
     },
@@ -729,7 +732,7 @@
       "lines": 3,
       "bytes": 115,
       "hash": "4bbb7cd08392b521ff7ba7db4387162fc15aa6af1f400ff6c9e460485b2457f5",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -739,7 +742,7 @@
       "lines": 74,
       "bytes": 2032,
       "hash": "51c3685ff36526caa6bdedb184456b5f6342e9b3b732568b6f8772e7171bbf83",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -779,7 +782,7 @@
       "lines": 305,
       "bytes": 9368,
       "hash": "5303cc44725a7637d110f85809e6ee82b71c2d8c3bab49e0254dd5928f893c5d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -919,7 +922,7 @@
       "lines": 204,
       "bytes": 6356,
       "hash": "e9f168d5433e4ddeb0beb46b272f645832b314c131c1c247e2dc27efbf1a92db",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -949,7 +952,7 @@
       "lines": 109,
       "bytes": 3035,
       "hash": "9f5a12e78f1cbf8687af23c94693cf3c7546eb521f7ef8a3da3e743107617719",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -959,7 +962,7 @@
       "lines": 271,
       "bytes": 6295,
       "hash": "a814594423144051e79a28977756099aad861e5a229e3f0c8611a98043200cf1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -969,7 +972,7 @@
       "lines": 62,
       "bytes": 1540,
       "hash": "ae55ba72fc5fcdcd1259d69d10483add230f3ded8365e1eed274c058a48904bc",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -979,7 +982,7 @@
       "lines": 31,
       "bytes": 1255,
       "hash": "e5f6ef1848db912c7de488d8755fa4c32eaf3d1d96c09b93746cd748d85d16d7",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -989,7 +992,7 @@
       "lines": 3,
       "bytes": 115,
       "hash": "4bbb7cd08392b521ff7ba7db4387162fc15aa6af1f400ff6c9e460485b2457f5",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -1009,7 +1012,7 @@
       "lines": 60,
       "bytes": 1750,
       "hash": "6876299a4710ecf7304dab6be7902cd566e01dc604ab2239bf3d17cfbffee538",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -1019,7 +1022,7 @@
       "lines": 1166,
       "bytes": 39190,
       "hash": "a8c0034288e967ba0c04368208800fd8cc6974fca2d6efea56f19fa456a23d04",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 12
     },
@@ -1029,7 +1032,7 @@
       "lines": 2104,
       "bytes": 59401,
       "hash": "cadba39eb84c214d39cd48bd850dd45f8d91e4e9f5f64d3b936cac1c3c070952",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 12
     },
@@ -1579,7 +1582,7 @@
       "lines": 1097,
       "bytes": 36606,
       "hash": "650723fe31e401c989768fb24b831eb75343e4ee772babf2d85d2eae1918fbb1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -1589,7 +1592,7 @@
       "lines": 1153,
       "bytes": 36223,
       "hash": "d2b6303310e09ef9fa32734d89ed5b01d3da1e84e95ebd5c047b0aaa8ab03052",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 16
     },
@@ -1599,7 +1602,7 @@
       "lines": 378,
       "bytes": 10666,
       "hash": "81e03f18598af09fa4e474dc1d2ad069bad4af4decb949296fe05f13d914e3d1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -1609,7 +1612,7 @@
       "lines": 2272,
       "bytes": 69933,
       "hash": "9481a8e9c67b3ffbcddabfcf38f42b1cbe8ab669679d644e4db3ad62e74946a3",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -1619,7 +1622,7 @@
       "lines": 945,
       "bytes": 26401,
       "hash": "a44c16a0820c8935dd0f3743f6b5bf194feaa203b638a78bfa8d2fd0d10b8be1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 15
     },
@@ -1629,7 +1632,7 @@
       "lines": 568,
       "bytes": 17682,
       "hash": "7998469df5a00337894fa969119759061a2d04309c95631505406ded03776454",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -1639,7 +1642,7 @@
       "lines": 853,
       "bytes": 27367,
       "hash": "5b8363ee495a57e91428c6a9e27a71372b25ef060fbf71878180ab3d445a3647",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -1649,7 +1652,7 @@
       "lines": 128,
       "bytes": 3929,
       "hash": "f782b12c049cdbcb17a6ab40388876da943d395284e66c1f8d3d2a65482143ab",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -1659,7 +1662,7 @@
       "lines": 228,
       "bytes": 7049,
       "hash": "19c9d050aff3cef1ef2809d081c8192ad71675b8d1ac0ae60dc741bf06310c1e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -1669,7 +1672,7 @@
       "lines": 1297,
       "bytes": 36990,
       "hash": "1522ab22fd6c259df98b4af0386cc8c45f2c602f30008b02228e57841b827a8a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 11
     },
@@ -1679,7 +1682,7 @@
       "lines": 678,
       "bytes": 17479,
       "hash": "d6b2ed38dd6632a5c8c3c3ad28ed59cd387bb8d4f98d1d7afb3531a22bdeab4a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 13
     },
@@ -1689,7 +1692,7 @@
       "lines": 273,
       "bytes": 9166,
       "hash": "5aeb45fa1769f30b7f86ea4671ee3a430b84b79c6a4b8d84b7b8f5c12f55c09c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -1699,7 +1702,7 @@
       "lines": 821,
       "bytes": 25110,
       "hash": "f296ee5a6957f36202a42d63211972f298be514c3cf0fd01c3b5436c2aa20e97",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -1709,7 +1712,7 @@
       "lines": 877,
       "bytes": 22944,
       "hash": "5dea660d9c9336d314c144b8c0302c8abd149b16b871dade2e28bda864a29e3d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -1719,7 +1722,7 @@
       "lines": 1332,
       "bytes": 35335,
       "hash": "5fd7712210f904c95cb8b4525c30c271251f8aa3549e24a7f39beaad019b747a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -1729,7 +1732,7 @@
       "lines": 2100,
       "bytes": 65643,
       "hash": "9154fc9b156b61a3f1fa5d563910fc0233489b029a0485c17ca7730ddfd4b17f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 13
     },
@@ -1739,7 +1742,7 @@
       "lines": 52,
       "bytes": 1395,
       "hash": "d785d26fcca4c341dcc06a7c6735bdf7e2107bb5a73cbcb032b53d4f8ef1baf0",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -1749,7 +1752,7 @@
       "lines": 327,
       "bytes": 10708,
       "hash": "5b5f7c1d1fb9a163a14f05a7ec986bdb701506c709d5bde68653fbd2f36051a0",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -1759,7 +1762,7 @@
       "lines": 83,
       "bytes": 2997,
       "hash": "82ad8698b7d168b9815926efbcec7df25e4d68f532c84c8d1c9ea069cec007b3",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -1769,7 +1772,7 @@
       "lines": 1572,
       "bytes": 49432,
       "hash": "52becc84c41bca6b77dc9690618018684a87c65224f2f56003bb15c6e5a0766c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 15
     },
@@ -1779,7 +1782,7 @@
       "lines": 35,
       "bytes": 1279,
       "hash": "551ff71ded44bdab4beafa5ef895bfa2236cabeae45d19f35f63d0ed05ee1606",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -1789,7 +1792,7 @@
       "lines": 80,
       "bytes": 2068,
       "hash": "be8da3ae42bf34bda244b2f68698db3f3f368d22eed86e4822a75967a0894892",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -1799,7 +1802,7 @@
       "lines": 58,
       "bytes": 2401,
       "hash": "cc4911f7a9804ba6defb12cdce0cdcd18973ccae60397e6c9b854b36da2dd0e1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -1809,7 +1812,7 @@
       "lines": 446,
       "bytes": 10908,
       "hash": "8286b65b3c74f50121eb04d3119325735cf1bd1ac632f7f1e44b41d027daceaa",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -1819,7 +1822,7 @@
       "lines": 379,
       "bytes": 11440,
       "hash": "5799fa0657f854606d4ddb0a99e5f9d57caa3a025751adc60478ddfe5bc0f42e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -1829,7 +1832,7 @@
       "lines": 703,
       "bytes": 24019,
       "hash": "9912e764c5ed9abb3b65b38137de99ac6dab10e7cf600c7faf6484565f507890",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -1839,7 +1842,7 @@
       "lines": 115,
       "bytes": 3272,
       "hash": "0b3614b94bc809774c5379a260959ee2c6a7ad561f4e5ec9702dd8404cb5b33f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -1849,7 +1852,7 @@
       "lines": 1698,
       "bytes": 48764,
       "hash": "610d2dc3380960a8b1cb791b3392d619781fa6070568a8c88ad0a8ee47489989",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -1919,7 +1922,7 @@
       "lines": 278,
       "bytes": 6579,
       "hash": "9d93ab9f21523abc2726a4c9a95551f4d3e1ecdfeee974b776bed1d6dc689684",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -1959,7 +1962,7 @@
       "lines": 531,
       "bytes": 15217,
       "hash": "3634c7193339c8789a05045dbf7f9d87cc277eb37bb3dcc9dbcb42ccb5b64eaa",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -1989,7 +1992,7 @@
       "lines": 70,
       "bytes": 2002,
       "hash": "d5cf783c2692c74c8add0e069af158dfa8e1c998a5dc941c8bc0292daaa1caff",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -2029,7 +2032,7 @@
       "lines": 211,
       "bytes": 6205,
       "hash": "f8a27790715158308caa82f512e75c9857ff54b3fd6a7cd5af8068a7ed4caacb",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -2119,7 +2122,7 @@
       "lines": 255,
       "bytes": 8173,
       "hash": "52827700cb9f35fa1fc2118e659a223d44c45e779f9085a41e3dc4738c99346b",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -2379,7 +2382,7 @@
       "lines": 1166,
       "bytes": 38471,
       "hash": "4d3084d44e6848fc0232fc28c30240f39711e7978243d6cc46eba2a0dec6055f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -2479,7 +2482,7 @@
       "lines": 158,
       "bytes": 4717,
       "hash": "0e7b102338a80fd6e483f84495bbdac77ef9363ba1c6f1eef352c4f576067628",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -2989,7 +2992,7 @@
       "lines": 147,
       "bytes": 4505,
       "hash": "4e647024cca100080470df9ca46d3ff63f3101707a713e93fff4e45b2b5b95b3",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -3129,7 +3132,7 @@
       "lines": 224,
       "bytes": 6844,
       "hash": "c96bd319e0b512302e97b80acf95589d0b20b073aa9c1b076ad7b93cd4ec2c3d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -3509,7 +3512,7 @@
       "lines": 75,
       "bytes": 1948,
       "hash": "f0a703d788b73b0f4482d0862d189596992e645b5c921a19f8c446467518acef",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -3659,7 +3662,7 @@
       "lines": 396,
       "bytes": 12236,
       "hash": "aca7d1dab34157a0b38269f99dd1cb55a73bbf378ebd24fa82054b3ac9fc2691",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -3899,7 +3902,7 @@
       "lines": 927,
       "bytes": 25723,
       "hash": "e1cfdb7f076b95624af2861192ad610eb01b6c7323db20d4fa1bf30eeb06adca",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 13
     },
@@ -4159,7 +4162,7 @@
       "lines": 89,
       "bytes": 2750,
       "hash": "11996207aa1f6db8f91ba8b5db665a6f1ceffde3160a1c3295f704713180826d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4249,7 +4252,7 @@
       "lines": 497,
       "bytes": 13483,
       "hash": "af668ae63f491f9e5a442bb0d384c7eb518b519552c619c9537437c74c547c84",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4259,7 +4262,7 @@
       "lines": 658,
       "bytes": 16778,
       "hash": "a31fa43899ea78b9b8d62d9bf9d5de1515887b3a3a76c7dbc915e8210810a0ad",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -4279,7 +4282,7 @@
       "lines": 368,
       "bytes": 10800,
       "hash": "eaf8abf865a924fcbcd177384e6d9796ed7f875bfc57744cfc647087ad2a9769",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4299,7 +4302,7 @@
       "lines": 339,
       "bytes": 10394,
       "hash": "c1bd0c587d9b7f280e3e785d9eb250c553f91dbb4d23d6aab8f16045ada73d48",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4319,7 +4322,7 @@
       "lines": 214,
       "bytes": 8106,
       "hash": "ca734969c7f45a9e4f38c4e8c50aee890a61577201b3555a9a310476e0178e5e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4429,7 +4432,7 @@
       "lines": 73,
       "bytes": 2626,
       "hash": "6fab29916af3d3f4d4da092a8d07485968815390b0ac2cd25292b8433d709b27",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -4459,7 +4462,7 @@
       "lines": 79,
       "bytes": 2139,
       "hash": "a1e6b3d0c7f6e2f6ed7e486692ddce99df8cb24ca9eec042fdf3f04c91a2a28a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -4529,7 +4532,7 @@
       "lines": 59,
       "bytes": 1773,
       "hash": "1960dda97638853e2d26420506b105271410488d046e9ddc285abc1e0c0b424a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -4719,7 +4722,7 @@
       "lines": 102,
       "bytes": 2918,
       "hash": "fa28e869d693002f886b628e0bf98f96caeef41b170b2f24d4c57e6ffbf94697",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -4799,7 +4802,7 @@
       "lines": 59,
       "bytes": 1386,
       "hash": "bf98fb5288ac5ef72cf1e740753073738b67b1988db107253a91e563cf772917",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -4879,7 +4882,7 @@
       "lines": 10,
       "bytes": 211,
       "hash": "25639fb7a82fed12a3cb9498444e78bb2e407c450dad484d76d44457896ccd5a",
-      "role": null,
+      "role": "declarations",
       "fanIn": 5,
       "fanOut": 0
     },
@@ -4979,7 +4982,7 @@
       "lines": 105,
       "bytes": 3441,
       "hash": "d1ffd98b9d5668c129ae2e3fa7134fa9f9c4b7346f92d849af6702aa404ceaa3",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -5239,7 +5242,7 @@
       "lines": 113,
       "bytes": 3273,
       "hash": "d7679fa3bf5d6b64bc2a526070ad97f0d653e22579c6d9056b3ce94e53750814",
-      "role": null,
+      "role": "declarations",
       "fanIn": 6,
       "fanOut": 0
     },
@@ -5439,7 +5442,7 @@
       "lines": 18,
       "bytes": 811,
       "hash": "8ba65e75be6b1133119c67dbe06b8d6e70cad9bcc8bbc357fdb97b7922d7a100",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -5469,7 +5472,7 @@
       "lines": 1,
       "bytes": 28,
       "hash": "f8a7ec5b298ce49bd0e4fd5dd47880768ecb156a790c5d5c37a2baca65060e82",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -5479,7 +5482,7 @@
       "lines": 1,
       "bytes": 40,
       "hash": "57eda4c4c04a1dca45c62857326882ce9cc948c4b52973c0e3c3b7e4c3fa3990",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -5519,7 +5522,7 @@
       "lines": 90,
       "bytes": 3097,
       "hash": "fa9e7fc11eece7e724d3574d831328709aa13473537efc7d5a2323f95a773c7f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -5749,7 +5752,7 @@
       "lines": 46,
       "bytes": 1212,
       "hash": "17b5c38ca50279106575eb5e5526149066a6310b336f11568b1fa61a6e42ded0",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -5759,7 +5762,7 @@
       "lines": 172,
       "bytes": 5053,
       "hash": "ef9c094851bf155992f6d4f93df784c791fed5ed60d064d004ce5d03bc249aa9",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5769,7 +5772,7 @@
       "lines": 182,
       "bytes": 5618,
       "hash": "12cc4bb60c1085a48aea551432e0017fa989e718b841a6f9a5e3376bb0846f61",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -5779,7 +5782,7 @@
       "lines": 167,
       "bytes": 4791,
       "hash": "af007dba9878431795c39735388172c36ef48220bba2142030f2f735dab60324",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -5789,7 +5792,7 @@
       "lines": 88,
       "bytes": 2368,
       "hash": "228d3c33bc429a034b4ba953644e71d37cbe2d34f767ab446b14bb1ff185a2f9",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -5799,7 +5802,7 @@
       "lines": 111,
       "bytes": 3141,
       "hash": "ed00bc94bbfe44624db600c2a7401d55e70150a680c0f80548071d5e7e8c6b65",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5809,7 +5812,7 @@
       "lines": 653,
       "bytes": 19402,
       "hash": "a1878e1df3469c852e3de982948648e82c93bac4bb12f8a09b463c5d3e0893b4",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -5819,7 +5822,7 @@
       "lines": 984,
       "bytes": 33113,
       "hash": "562ad12cbbb5ddbba3931d9c4391a48c780534fa9bfab0a045a64289bc772523",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -5829,7 +5832,7 @@
       "lines": 839,
       "bytes": 25480,
       "hash": "80ee3236508162a26872c53a92adbabafe8b2929bef53658703bb243bd8959aa",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -5839,7 +5842,7 @@
       "lines": 164,
       "bytes": 3958,
       "hash": "6412dc303fd73ee85982e21bba4aa02656f23699199c12c001053fcf1af87882",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -5849,7 +5852,7 @@
       "lines": 39,
       "bytes": 1125,
       "hash": "db2757973657f3ce5de3992b709219805cffab6bbc137f48169467ddd7e0ab20",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -5859,7 +5862,7 @@
       "lines": 941,
       "bytes": 27714,
       "hash": "e5ff12a92b78959e8bc251be8ae1e3ffed6431953312d8cb12ead1e0d78372eb",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -5869,7 +5872,7 @@
       "lines": 386,
       "bytes": 12793,
       "hash": "7ed07087484930a61daa98f127514c4f2315be5cc961abda80e279a637c4e7e2",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -5879,7 +5882,7 @@
       "lines": 128,
       "bytes": 3899,
       "hash": "bf5119686ff96d7f0efe30315d92fb8b508784bc36d3d6566ec1c4a22e93bbb8",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -5889,7 +5892,7 @@
       "lines": 130,
       "bytes": 4191,
       "hash": "1a94fc2094a8cc9afa36ac539ed52dbcf6d36218d56321fd309b3b257be02b7c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5899,7 +5902,7 @@
       "lines": 51,
       "bytes": 1370,
       "hash": "a41547462a43e66189d4bf646e831fe6f52da8f544685944c9a0c58e9b135963",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -5909,7 +5912,7 @@
       "lines": 628,
       "bytes": 17194,
       "hash": "f82d7345072e97b462eb8522d6ae3a178d19edd3c2b3a3e1ca2ec56679f3007e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -5919,7 +5922,7 @@
       "lines": 90,
       "bytes": 2668,
       "hash": "add7766a9b004f3c48713f9b4137186977c662ba80a7be25b9d4377619b7d2a8",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -5929,7 +5932,7 @@
       "lines": 46,
       "bytes": 1283,
       "hash": "a065d37f14192917ad42505f987d69cfda84914d75f70b2dbf4f3f393e2f09a0",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5939,7 +5942,7 @@
       "lines": 167,
       "bytes": 4962,
       "hash": "3ea3b99c86d467318cb47f1ef07d31c7c292608a367659450396a436246bcf9b",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -5949,7 +5952,7 @@
       "lines": 335,
       "bytes": 10463,
       "hash": "0199bd851d267408e94d91bf319a80a53fb8073363d3271be73d40cc6844c8f8",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5959,7 +5962,7 @@
       "lines": 215,
       "bytes": 5700,
       "hash": "b6cbf9149cc22d309e69ac78ff111482151c6a6769d5590285f030d480249a1d",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5969,7 +5972,7 @@
       "lines": 386,
       "bytes": 11078,
       "hash": "2dc053c6212ffc52579b946f73aeecebc01af154239e1a59e226c3929a9b984c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -5979,7 +5982,7 @@
       "lines": 1659,
       "bytes": 48984,
       "hash": "2c41ed983ce10672f7aec07817b7bcd5c0690b868153189d19c5bd8f89eb6bfb",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -5989,7 +5992,7 @@
       "lines": 600,
       "bytes": 21083,
       "hash": "f3db67c1e56aa52ff62b65f71f3bbdb2e727be0c587f4661d803b675b30a6a7b",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -5999,7 +6002,7 @@
       "lines": 858,
       "bytes": 25473,
       "hash": "821fdff0c1e72585b085dcfc4911690410414eaf05136cf5197979e41d84c67b",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6009,7 +6012,7 @@
       "lines": 390,
       "bytes": 11396,
       "hash": "7ecfd4ba889f58806754d391226330cb82e6f89d91b7437264e5a4491eb4242e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -6019,7 +6022,7 @@
       "lines": 75,
       "bytes": 1969,
       "hash": "1bbe4d78095a0b04f3b277f14211d61765d372137ac33047d3f37c022281ca14",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -6029,7 +6032,7 @@
       "lines": 500,
       "bytes": 17135,
       "hash": "431c00a02e0ecbd4244d180a4ddf2608ec0d1b9de1d5e703382cb40f7ae628c4",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6039,7 +6042,7 @@
       "lines": 264,
       "bytes": 7049,
       "hash": "084cbf7648744c75817ab0ee669a4d2b54c114e8a796a013607b26b0c136b21b",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 12
     },
@@ -6049,7 +6052,7 @@
       "lines": 124,
       "bytes": 3623,
       "hash": "505f89035ca307ffc7630648a0006265a5ac59b2986b09e1acca5a7d7b33b2c6",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -6059,7 +6062,7 @@
       "lines": 330,
       "bytes": 11672,
       "hash": "a10c4de1e89e7c916ee5df8e44c747b7ac73c37748541280cdc2c71b157a129f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6069,7 +6072,7 @@
       "lines": 412,
       "bytes": 10929,
       "hash": "ebf39dba7324567575c943b6bc9697a45400ea4f9cd4ff59e54fe7e028eebf19",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6109,7 +6112,7 @@
       "lines": 920,
       "bytes": 28441,
       "hash": "49eff17bd348c342b465872b74bcdd6f8a0ea0f7a3d74a2c2b53ee065117ddb7",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 15
     },
@@ -6119,7 +6122,7 @@
       "lines": 56,
       "bytes": 1623,
       "hash": "2089b2f66654f4e9c3ce6674dc1013688e15d5c4b690249a26cbc393600eb553",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -6129,7 +6132,7 @@
       "lines": 60,
       "bytes": 2011,
       "hash": "43c2c6a9b4a88849de895641cfd37e2beffa7eebc78540f7cd0b9c74d9c68d0a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6199,7 +6202,7 @@
       "lines": 5308,
       "bytes": 171236,
       "hash": "cdf36824cf636a0074ca9db7ecfe503c61ad1650758b2fe865ff910e29492ef4",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 21
     },
@@ -6209,7 +6212,7 @@
       "lines": 508,
       "bytes": 16952,
       "hash": "5a1320306c1333e8c9c3c7410b24085f45094e7c640138999656ba68d765d3c1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 11
     },
@@ -6219,7 +6222,7 @@
       "lines": 176,
       "bytes": 4782,
       "hash": "e5606f3ed3999098a77ff04da8bd3f277265195ef1d07e2f63e07182182df44c",
-      "role": null,
+      "role": "test",
       "fanIn": 1,
       "fanOut": 13
     },
@@ -6229,7 +6232,7 @@
       "lines": 1648,
       "bytes": 50137,
       "hash": "3afaaefcb2fc5ebe149db979b12e5cea65ebe2b25bae25dea5123e813df0dd44",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6239,7 +6242,7 @@
       "lines": 286,
       "bytes": 8219,
       "hash": "a13a843cb56a74414f4ecb03aa4141a3ab5c51721915bf5cf5cc3e0efdd78167",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -6249,7 +6252,7 @@
       "lines": 2222,
       "bytes": 65517,
       "hash": "8936a6875d5c33e75d6b0836dd0345ab24ebd27dc1a95321d7d161eda882cbd6",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 8
     },
@@ -6259,7 +6262,7 @@
       "lines": 443,
       "bytes": 12421,
       "hash": "a242e789d7282b7ece2dd2fbab6bb1cbc0bddb9fa9d5a59e3b59669bc5aeccd3",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 11
     },
@@ -6269,7 +6272,7 @@
       "lines": 217,
       "bytes": 7661,
       "hash": "5370d73520861e19293d077ceeb06f22a29e42b606fa2d7a54ca0165c73dcfb8",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6279,7 +6282,7 @@
       "lines": 227,
       "bytes": 7129,
       "hash": "27c96f52688390fb8fe0d34c62009d0d49fce16fe83a8510662a0976987bf779",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6289,7 +6292,7 @@
       "lines": 816,
       "bytes": 23533,
       "hash": "a368172a60af0a5480e7de5b76f79c39ea6610315489ee4006bf8d62aa51a627",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 12
     },
@@ -6299,7 +6302,7 @@
       "lines": 149,
       "bytes": 4251,
       "hash": "fa7d66b6f51e8a709273812ebb09c18e069e060694e3db5dfdf8e680aa1d137e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6309,7 +6312,7 @@
       "lines": 216,
       "bytes": 7537,
       "hash": "61aea2e4071efbc33ce554f47a8b6c86a0491d146dc67f69fc885024d24a4676",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -6319,7 +6322,7 @@
       "lines": 380,
       "bytes": 12967,
       "hash": "26356dadf579e0afb5acaac01df5290ed6a310447d457946031381dd088ae140",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6349,7 +6352,7 @@
       "lines": 1200,
       "bytes": 33230,
       "hash": "1740fe0332a11e355fdef43b1f5e6f221059756c231a091ddec28f02b3ed6ecc",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6359,7 +6362,7 @@
       "lines": 291,
       "bytes": 9121,
       "hash": "09bf416183d768138fdae89b4e585354b35cc6d11779ee367df36d39e6eb4c62",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6369,7 +6372,7 @@
       "lines": 229,
       "bytes": 6631,
       "hash": "59c02aab460e4a2a61cf729b998ae4cf97461dae5bb258d3d2f62d048fdaa4e9",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6379,7 +6382,7 @@
       "lines": 1304,
       "bytes": 42612,
       "hash": "c0dca79f58d283d40a434761cf39b538b5f8ab07745379927ab94e81dee306e5",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 15
     },
@@ -6389,7 +6392,7 @@
       "lines": 85,
       "bytes": 2355,
       "hash": "b426399f21fc0ec3a9aab7fd7ff1465cc427ddc28cf386d78001a227626cfdbd",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -6399,7 +6402,7 @@
       "lines": 1100,
       "bytes": 32310,
       "hash": "6b95ead53d7991ba611f7777910e2f2fc8e55825d9e574a1e85b8cb756db9a74",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 9
     },
@@ -6409,7 +6412,7 @@
       "lines": 168,
       "bytes": 4860,
       "hash": "b71f8f4e2c42c5d8cec1efb82fb5edb26890b434a3765a82cea1f4c2fc7e4907",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6419,7 +6422,7 @@
       "lines": 1324,
       "bytes": 40575,
       "hash": "ed03720c5fe277ed334759c4590213afe45e2108d8eb9848477a6d02c962058c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 11
     },
@@ -6429,7 +6432,7 @@
       "lines": 197,
       "bytes": 5900,
       "hash": "b6fd39faed82a15dc2a5fd795b3b4d1a3fa6ebf25ea830487b1da803f58f98c2",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6439,7 +6442,7 @@
       "lines": 2031,
       "bytes": 57325,
       "hash": "dc801b3bde33255b490b59ab753e417e21abfc0098939363ef3cb1c615c9f43c",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 11
     },
@@ -6449,7 +6452,7 @@
       "lines": 34,
       "bytes": 956,
       "hash": "de9f7af3a7e5a0c5c44bc818da34e6ee8f8ab3a437cc1307f5f1093449b43a41",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6459,7 +6462,7 @@
       "lines": 1179,
       "bytes": 40238,
       "hash": "52e3a52ec2cfc0853d0155df272576dbfbbeec0565452c59e9ccf7bb96fd6122",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 16
     },
@@ -6479,7 +6482,7 @@
       "lines": 388,
       "bytes": 12933,
       "hash": "120cd1c957ae6682e76775887393816f8d8a6c4968995351f37f74aa16931c54",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6489,7 +6492,7 @@
       "lines": 163,
       "bytes": 5452,
       "hash": "e3db6537ae2647ba9887b10d822e021692dc8039a4c5b25af115e4ce75897220",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6499,7 +6502,7 @@
       "lines": 252,
       "bytes": 7951,
       "hash": "952a31e12524c59b8ee6452c68f7e400519ce25fc0a32653f7fc3b4dee8b878e",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 7
     },
@@ -6509,7 +6512,7 @@
       "lines": 190,
       "bytes": 5571,
       "hash": "897d8ed3a6f23bd8d4762f3a200c8d0fc6596baec71ea498f6699a7cbc170f07",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6519,7 +6522,7 @@
       "lines": 76,
       "bytes": 2079,
       "hash": "687dbe16edd2009e32563b867ddda9f811b71c523c4a2f660bc0a6d6fed22414",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6529,7 +6532,7 @@
       "lines": 445,
       "bytes": 14702,
       "hash": "6a159ad4e6f2e5d57d5778468627ae80e03c48b0c6504bc91b4dd6b009306dfc",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 6
     },
@@ -6539,7 +6542,7 @@
       "lines": 569,
       "bytes": 16310,
       "hash": "18adb26cf14c430d7b197df22858da5ace153ceeb723fc242a8fb0d0b7bb4003",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6579,7 +6582,7 @@
       "lines": 60,
       "bytes": 1598,
       "hash": "72ebb8cb009923c4f378f04123ce878a46520b9da7c6a82e3779687c2d13fbfd",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -6599,7 +6602,7 @@
       "lines": 3597,
       "bytes": 117563,
       "hash": "83f9112cda33af72c3abb1fc9c671c07dcdf4c8b3def22cc9348946e57249def",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 14
     },
@@ -6619,7 +6622,7 @@
       "lines": 0,
       "bytes": 0,
       "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -6639,7 +6642,7 @@
       "lines": 0,
       "bytes": 0,
       "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 0
     },
@@ -6689,7 +6692,7 @@
       "lines": 3,
       "bytes": 115,
       "hash": "4bbb7cd08392b521ff7ba7db4387162fc15aa6af1f400ff6c9e460485b2457f5",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6859,7 +6862,7 @@
       "lines": 105,
       "bytes": 2894,
       "hash": "e24a02eb4ca3043660a41046dbaab7ec0b52dd6afbd1b66e0ea322eb6c205ec2",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 4
     },
@@ -6869,7 +6872,7 @@
       "lines": 157,
       "bytes": 5039,
       "hash": "27381c49791af4c3d74c2b498c6ab4d0183715b51547ccec8f745a2680398bf7",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -6879,7 +6882,7 @@
       "lines": 31,
       "bytes": 867,
       "hash": "c4b6f3b61d4d7a8bbaac70dc29ca8d87ec31a0cdec3533b74f5b88f089914d41",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6889,7 +6892,7 @@
       "lines": 200,
       "bytes": 6080,
       "hash": "ae43e1355f235da9e982c98d7adeea085ad87d3a3a3f4f8bc83620f4fbd7254f",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -6899,7 +6902,7 @@
       "lines": 25,
       "bytes": 691,
       "hash": "047e7018156bc7ab5b451fd0d8c82b4e097cfe75ddf83ce47139693f09292f86",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6909,7 +6912,7 @@
       "lines": 120,
       "bytes": 3498,
       "hash": "68a64ded4c05b1659ff756d02d237e54b943e6e92df08fd215f7b6ba7f42136a",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 3
     },
@@ -6919,7 +6922,7 @@
       "lines": 51,
       "bytes": 1840,
       "hash": "d72c6622eab834fb379f14bed558aad680bce8ccaeda2000dc5c0faa25bf1996",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -6929,7 +6932,7 @@
       "lines": 45,
       "bytes": 1211,
       "hash": "3da882879b62d89cd88189490631db994d43fefbd9a32747ae17360542335dda",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6939,7 +6942,7 @@
       "lines": 12,
       "bytes": 363,
       "hash": "d99016a3da2533a5ace6b13220d2eaa7443396692b66d541214795b58a90ff03",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 1
     },
@@ -6949,7 +6952,7 @@
       "lines": 3,
       "bytes": 115,
       "hash": "4bbb7cd08392b521ff7ba7db4387162fc15aa6af1f400ff6c9e460485b2457f5",
-      "role": null,
+      "role": "declarations",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -6989,7 +6992,7 @@
       "lines": 354,
       "bytes": 11703,
       "hash": "3c869fdd9f1f5b3a8d3203378cc6d72f7ee3415b921e26d5680ba7460c88eae1",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 10
     },
@@ -6999,7 +7002,7 @@
       "lines": 146,
       "bytes": 4381,
       "hash": "e8df1cd5256daa77e3e3dac79392c374fd196b4f9868259792ade4a8e2942824",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -7009,7 +7012,7 @@
       "lines": 75,
       "bytes": 2415,
       "hash": "23ea9e471476b48356ba4b95ab3655fe7363560fa7dcee16bc5d99aed43b4ba5",
-      "role": null,
+      "role": "test",
       "fanIn": 0,
       "fanOut": 5
     },
@@ -7159,7 +7162,7 @@
       "lines": 17,
       "bytes": 624,
       "hash": "ded41548e27e4b897df9ae53818a6aee6eb656fd266d1c113d377ef6ec1904ef",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 2
     },
@@ -7209,7 +7212,7 @@
       "lines": 100,
       "bytes": 3063,
       "hash": "be32b1c9e8dcf0233985b38ee9a6d4d3dae9f9f31bda80db766d63f08d088a30",
-      "role": null,
+      "role": "config",
       "fanIn": 0,
       "fanOut": 0
     }
