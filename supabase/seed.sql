@@ -36,8 +36,13 @@ clear_analyses as (
   delete from public.analyses
   where organization_id in (select id from orgs)
 )
-insert into public.analyses (organization_id, project_id, status, commit_sha, created_at, updated_at)
-select p.organization_id, p.id, repos.status, repos.commit_sha, now() - repos.age, now() - repos.age
+-- A failed row has to say why and where. These say they're placeholders.
+insert into public.analyses (organization_id, project_id, status, commit_sha, failed_stage, failure, created_at, updated_at)
+select
+  p.organization_id, p.id, repos.status, repos.commit_sha,
+  case when repos.status = 'failed' then 'fetching'::public.analysis_status end,
+  case when repos.status = 'failed' then 'Seeded placeholder; no run took place.' end,
+  now() - repos.age, now() - repos.age
 from upsert_projects p
 join orgs on orgs.id = p.organization_id
 join repos on repos.ordinal = orgs.ordinal and repos.owner = p.owner and repos.name = p.name;

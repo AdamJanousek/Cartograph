@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 
 // The shell every screen renders inside. The regions are fixed here: a narrow
 // category rail on the left, the map in the centre, details and chat stacked
-// on the right. Later phases fill them in and don't move them. Both the signed-in
-// workspace and the preview route render through this, so they can't drift.
+// on the right. Later phases fill them in and don't move them.
 export function Shell({
   bar,
   rail,

@@ -17,7 +17,7 @@ import {
   type ReasonGroup,
   type SkippedFile,
 } from "./types.ts";
-import { compare, errorMessage, walkRepository, type WalkedFile } from "./walk.ts";
+import { compare, errorMessage, walkRepository, type WalkedFile, type WalkResult } from "./walk.ts";
 
 export * from "./types.ts";
 
@@ -25,12 +25,26 @@ const EXAMPLES_PER_REASON = 5;
 
 /** Reads the repository at `directory` and returns its files, edges and coverage. */
 export function parseRepository(directory: string): ParseResult {
+  return parseSelection(selectFiles(directory));
+}
+
+/** Which files a parse will read, and which it won't. Nothing is parsed yet. */
+export interface Selection {
+  root: string;
+  walk: WalkResult;
+}
+
+// Selecting and parsing are separate calls so a caller can say which one is
+// happening. Both are synchronous; nothing between them is shared state.
+export function selectFiles(directory: string): Selection {
   const root = resolve(directory);
   if (!statSync(root, { throwIfNoEntry: false })?.isDirectory()) {
     throw new Error(`Not a directory: ${root}`);
   }
+  return { root, walk: walkRepository(root) };
+}
 
-  const walk = walkRepository(root);
+export function parseSelection({ root, walk }: Selection): ParseResult {
   const skips: SkippedFile[] = [...walk.skips];
 
   // Contents come from the walk, so ts-morph never touches the disk itself.

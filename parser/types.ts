@@ -59,7 +59,7 @@ export type UnresolvedReason =
 export type ImportReason = ExternalReason | ExcludedReason | UnresolvedReason;
 
 /** A single import as written in a file, and what became of it. */
-export interface ImportRecord {
+export type ImportRecord = {
   from: string;
   /** The module specifier as written; null for a non-literal dynamic import. */
   specifier: string | null;
@@ -73,30 +73,32 @@ export interface ImportRecord {
   target: string | null;
   /** Human-readable explanation, e.g. which candidates were tried. */
   detail: string | null;
-}
+};
 
-export interface ReasonGroup {
+export type ReasonGroup = {
   outcome: Exclude<ImportOutcome, "resolved">;
   reason: ImportReason;
   count: number;
   /** Every unresolved import is kept; other outcomes keep the first few. */
   examples: ImportRecord[];
-}
+};
 
 export type SkipReason = "too-large" | "minified" | "not-utf8" | "symlink" | "read-error" | "parse-error";
 
-export interface SkippedFile {
+export type SkippedFile = {
   path: string;
   reason: SkipReason;
   detail: string;
-}
+};
 
-export interface ExcludedDirectory {
+export type ExcludedDirectory = {
   path: string;
   reason: "dependencies" | "hidden" | "build-output" | "symlink";
-}
+};
 
-export interface Coverage {
+// The types inside Coverage are aliases, not interfaces, so the report can be
+// stored as JSON as it is: only aliases satisfy a JSON index signature.
+export type Coverage = {
   files: {
     /** Source files the walk saw: found = parsed + skipped. */
     found: number;
@@ -112,11 +114,11 @@ export interface Coverage {
     byKind: Record<EdgeKind, Record<ImportOutcome, number>>;
     reasons: ReasonGroup[];
   };
-}
+};
 
 export interface ParseResult {
   schemaVersion: typeof SCHEMA_VERSION;
-  /** Absolute path that was parsed. */
+  /** What was parsed: an absolute path, or owner/name for a stored analysis, whose path was temporary. */
   root: string;
   /** Frameworks detected in any of the repository's packages, sorted. Empty when none. */
   frameworks: string[];
