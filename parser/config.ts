@@ -57,7 +57,10 @@ export class ConfigLookup {
 
     let found: ResolutionConfig | null = null;
     for (const name of CONFIG_NAMES) {
-      const path = join(this.root, relativeDir, name);
+      // The root is a repository fetched at runtime, never this project, so a
+      // bundler tracing this call has nothing to find. The comment tells
+      // Turbopack so; it's inert everywhere else.
+      const path = join(/*turbopackIgnore: true*/ this.root, relativeDir, name);
       if (ts.sys.fileExists(path)) {
         found = this.load(path);
         break;

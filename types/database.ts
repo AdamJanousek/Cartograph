@@ -20,28 +20,43 @@ export type Database = {
       analyses: {
         Row: {
           commit_sha: string | null
+          coverage: Json | null
           created_at: string
+          failed_stage: Database["public"]["Enums"]["analysis_status"] | null
+          failure: string | null
+          frameworks: string[]
           id: string
           organization_id: string
           project_id: string
+          stage_message: string | null
           status: Database["public"]["Enums"]["analysis_status"]
           updated_at: string
         }
         Insert: {
           commit_sha?: string | null
+          coverage?: Json | null
           created_at?: string
+          failed_stage?: Database["public"]["Enums"]["analysis_status"] | null
+          failure?: string | null
+          frameworks?: string[]
           id?: string
           organization_id: string
           project_id: string
+          stage_message?: string | null
           status?: Database["public"]["Enums"]["analysis_status"]
           updated_at?: string
         }
         Update: {
           commit_sha?: string | null
+          coverage?: Json | null
           created_at?: string
+          failed_stage?: Database["public"]["Enums"]["analysis_status"] | null
+          failure?: string | null
+          frameworks?: string[]
           id?: string
           organization_id?: string
           project_id?: string
+          stage_message?: string | null
           status?: Database["public"]["Enums"]["analysis_status"]
           updated_at?: string
         }
@@ -70,6 +85,7 @@ export type Database = {
           organization_id: string
           source_file_id: string
           target_file_id: string
+          type_only: boolean
         }
         Insert: {
           analysis_id: string
@@ -78,6 +94,7 @@ export type Database = {
           organization_id: string
           source_file_id: string
           target_file_id: string
+          type_only: boolean
         }
         Update: {
           analysis_id?: string
@@ -86,6 +103,7 @@ export type Database = {
           organization_id?: string
           source_file_id?: string
           target_file_id?: string
+          type_only?: boolean
         }
         Relationships: [
           {
@@ -208,6 +226,7 @@ export type Database = {
       files: {
         Row: {
           analysis_id: string
+          bytes: number
           content_hash: string
           id: string
           lines: number
@@ -216,6 +235,7 @@ export type Database = {
         }
         Insert: {
           analysis_id: string
+          bytes: number
           content_hash: string
           id?: string
           lines: number
@@ -224,6 +244,7 @@ export type Database = {
         }
         Update: {
           analysis_id?: string
+          bytes?: number
           content_hash?: string
           id?: string
           lines?: number

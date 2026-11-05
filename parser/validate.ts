@@ -42,7 +42,12 @@ const DIRECTORY_REASONS: readonly ExcludedDirectory["reason"][] = ["dependencies
 export class InvalidParseResult extends Error {}
 
 export function readParseResult(json: string): ParseResult {
-  const result = decodeResult(JSON.parse(json), "$");
+  return checkParseResult(JSON.parse(json));
+}
+
+/** The same checks, for a result that arrived as a value rather than as text. */
+export function checkParseResult(value: unknown): ParseResult {
+  const result = decodeResult(value, "$");
   checkIntegrity(result);
   return result;
 }

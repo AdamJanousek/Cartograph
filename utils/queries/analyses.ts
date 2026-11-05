@@ -22,3 +22,26 @@ export async function listAnalyses() {
 export type AnalysisListItem = Awaited<
   ReturnType<typeof listAnalyses>
 >["analyses"][number];
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+// Null when the analysis doesn't exist or belongs to another organization: the
+// policy makes those the same thing, and so does this.
+export async function getAnalysis(id: string) {
+  if (!UUID.test(id)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("analyses")
+    .select(
+      "id, status, stage_message, failed_stage, failure, commit_sha, updated_at, frameworks, coverage, project:projects(owner, name)",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`Reading the analysis failed: ${error.message}`);
+  return data && { analysis: data, readAt: Date.now() };
+}
+
+export type AnalysisDetail = NonNullable<
+  Awaited<ReturnType<typeof getAnalysis>>
+>["analysis"];

@@ -1,52 +1,11 @@
-import type { AnalysisStatus } from "@/types/database";
+import Link from "next/link";
+import { LiveState } from "@/components/live-state";
+import { isStale } from "@/utils/progress";
 import {
   LIST_LIMIT,
   listAnalyses,
   type AnalysisListItem,
 } from "@/utils/queries/analyses";
-
-// State is told apart by shape, not colour: the palette reserves colour for
-// import direction and file kind, and state is neither.
-type Phase = "done" | "working" | "waiting" | "failed";
-
-const PHASE: Record<AnalysisStatus, Phase> = {
-  pending: "waiting",
-  fetching: "working",
-  selecting: "working",
-  parsing: "working",
-  storing: "working",
-  complete: "done",
-  failed: "failed",
-};
-
-function StateGlyph({ phase }: { phase: Phase }) {
-  return (
-    <svg
-      viewBox="0 0 10 10"
-      aria-hidden
-      className="size-2.5 shrink-0 text-text-muted"
-    >
-      {phase === "done" && <circle cx="5" cy="5" r="4" fill="currentColor" />}
-      {phase === "working" && (
-        <>
-          <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" />
-          <path d="M5 1.5a3.5 3.5 0 0 1 0 7z" fill="currentColor" />
-        </>
-      )}
-      {phase === "waiting" && (
-        <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" />
-      )}
-      {phase === "failed" && (
-        <path
-          d="M2 2l6 6M8 2l-6 6"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      )}
-    </svg>
-  );
-}
 
 const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
@@ -71,25 +30,23 @@ function formatExact(iso: string) {
 }
 
 function Row({ analysis, now }: { analysis: AnalysisListItem; now: number }) {
-  const phase = PHASE[analysis.status];
-
   return (
     <tr className="h-7 border-b border-border">
       <td className="truncate pr-4 pl-3 font-mono">
         {analysis.project && (
-          <>
+          <Link href={`/analyses/${analysis.id}`} className="hover:text-accent">
             <span className="text-text-muted">{analysis.project.owner}/</span>
             {analysis.project.name}
-          </>
+          </Link>
         )}
       </td>
       <td className="pr-4">
-        <span className="flex items-center gap-1.5">
-          <StateGlyph phase={phase} />
-          <span className={phase === "done" ? "text-text-muted" : undefined}>
-            {analysis.status}
-          </span>
-        </span>
+        <LiveState
+          analysisId={analysis.id}
+          status={analysis.status}
+          updatedAt={analysis.updated_at}
+          stale={isStale(analysis.status, analysis.updated_at, now)}
+        />
       </td>
       <td className="pr-4 font-mono text-text-muted">
         {analysis.commit_sha ? analysis.commit_sha.slice(0, 7) : "—"}
