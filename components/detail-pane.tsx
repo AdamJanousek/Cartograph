@@ -104,6 +104,7 @@ function TabButton({
 }
 
 function RepositoryView({ name, summary }: { name: string; summary: RepositorySummary }) {
+  const { routes } = useMapState();
   return (
     <div className="h-full overflow-auto">
       <header className="px-3 pt-2">
@@ -111,7 +112,10 @@ function RepositoryView({ name, summary }: { name: string; summary: RepositorySu
         <h2 className="font-mono text-[14px] leading-5 font-semibold break-all">{name}</h2>
       </header>
       <Facts>
-        <Fact label="Framework">{summary.framework ?? <span className="text-text-muted">none detected</span>}</Fact>
+        <Fact label="Framework">
+          {summary.framework ?? <span className="text-text-muted">none detected</span>}
+          <span className="text-text-muted"> · {summary.categories} categories</span>
+        </Fact>
         <Fact label="Files">
           {summary.files}
           {summary.skipped > 0 && <span className="text-text-muted"> · {summary.skipped} skipped</span>}
@@ -120,13 +124,7 @@ function RepositoryView({ name, summary }: { name: string; summary: RepositorySu
           {summary.imports}
           <span className="text-text-muted"> · {summary.resolvedImports} to files here</span>
         </Fact>
-        {/* The parse records no routes, so there's no number to show. A zero
-            would claim it looked and found none. */}
-        <Fact label="Routes">
-          <span className="text-text-muted" title="This parse records no routes">
-            —
-          </span>
-        </Fact>
+        <Fact label="Routes">{routes.length}</Fact>
         <Fact label="Unidentified">
           {summary.unidentified}
           <span className="text-text-muted"> of {summary.files} files</span>
@@ -175,6 +173,30 @@ function RankedList({
           {all ? "show fewer" : `show all ${files.length}`}
         </button>
       )}
+    </Section>
+  );
+}
+
+/** The selected file's own routes, with the line each is declared on. */
+function FileRoutes({ path }: { path: string }) {
+  const { routes } = useMapState();
+  const own = routes.filter((route) => route.file === path);
+  if (own.length === 0) return null;
+  return (
+    <Section title="Routes" count={<span className="text-text-muted">{own.length}</span>}>
+      <ul>
+        {own.map((route) => (
+          <li key={`${route.method}\0${route.pattern}`} className="flex h-6 items-center gap-3 px-3 font-mono text-[12px]">
+            <span className="w-[56px] shrink-0 text-text-muted">{route.method}</span>
+            <span className="min-w-0 flex-1 truncate" title={route.pattern}>
+              {route.pattern}
+            </span>
+            <span className="shrink-0 text-[11px] text-text-muted tabular-nums">
+              {route.line === null ? "from path" : `line ${route.line}`}
+            </span>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
@@ -234,6 +256,7 @@ function FileView({ detail }: { detail: FileDetail }) {
           );
         })}
       </div>
+      <FileRoutes path={file.path} />
       {active && reached && (
         <WalkList
           title={WALKS.find((w) => w.direction === active.direction)!.label}

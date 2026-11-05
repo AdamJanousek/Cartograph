@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AnalysisProgress } from "@/components/analysis-progress";
 import { CategoryRail } from "@/components/category-rail";
-import { DependencyMap } from "@/components/dependency-map";
 import { DetailPane } from "@/components/detail-pane";
 import { InsightsPanel } from "@/components/insights-panel";
 import { MapStateProvider } from "@/components/map-state";
 import { Shell } from "@/components/shell";
+import { WorkspaceViews } from "@/components/workspace-views";
 import { WorkspaceBar } from "@/components/workspace-bar";
-import { categorize } from "@/graph/categories";
+import { railCategories } from "@/parser/taxonomy";
 import { findInsights } from "@/graph/insights";
 import { summarize } from "@/graph/summary";
 import { isStale } from "@/utils/progress";
@@ -57,18 +57,18 @@ async function Analysis({ params }: { params: PageProps<"/analyses/[id]">["param
   });
 
   return (
-    <MapStateProvider files={result.files} edges={result.edges}>
+    <MapStateProvider files={result.files} edges={result.edges} routes={result.routes}>
       <Shell
         bar={<WorkspaceBar />}
         rail={
           <>
-            <CategoryRail categories={categorize(result.files)} />
+            <CategoryRail categories={railCategories(result.frameworks, result.files.map((file) => file.role))} />
             <InsightsPanel insights={findInsights(result.files, result.edges)} />
           </>
         }
         details={<DetailPane name={`${owner}/${name}`} summary={summarize(result)} />}
       >
-        <DependencyMap />
+        <WorkspaceViews withheld={result.coverage.routes.withheld} />
       </Shell>
     </MapStateProvider>
   );

@@ -68,6 +68,14 @@ function print(result: ParseResult): void {
     if (group.examples.length < group.count) console.log(`  … ${group.count - group.examples.length} more`);
   }
 
+  console.log(`\nroutes   ${result.routes.length}`);
+  for (const route of result.routes) {
+    console.log(`  ${route.method.padEnd(8)}${route.pattern}  ${route.file}${route.line === null ? "" : `:${route.line}`}`);
+  }
+  for (const item of result.coverage.routes.withheld) {
+    console.log(`  withheld  ${item.path}${item.line === null ? "" : `:${item.line}`}  ${item.reason}`);
+  }
+
   const busiest = [...result.files].sort((a, b) => b.fanIn - a.fanIn).slice(0, 5);
   console.log(`\nhighest fan-in`);
   for (const file of busiest) console.log(`  ${String(file.fanIn).padStart(4)}  ${file.path}`);

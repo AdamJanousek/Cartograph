@@ -2,7 +2,7 @@ import { statSync } from "node:fs";
 import { resolve } from "node:path";
 import { Project } from "ts-morph";
 import { computeFan, dedupeEdges } from "../graph/edges.ts";
-import { assignRoles } from "./adapters.ts";
+import { readFrameworks } from "./adapters/index.ts";
 import { ConfigLookup, indexPackages } from "./config.ts";
 import { extractImports, type RawImport } from "./imports.ts";
 import { Resolver } from "./resolve.ts";
@@ -16,6 +16,7 @@ import {
   type ParseResult,
   type ReasonGroup,
   type SkippedFile,
+  type WithheldRoutes,
 } from "./types.ts";
 import { compare, errorMessage, walkRepository, type WalkedFile, type WalkResult } from "./walk.ts";
 
@@ -23,7 +24,7 @@ export * from "./types.ts";
 
 const EXAMPLES_PER_REASON = 5;
 
-/** Reads the repository at `directory` and returns its files, edges and coverage. */
+/** Reads the repository at `directory` and returns its files, edges, routes and coverage. */
 export function parseRepository(directory: string): ParseResult {
   return parseSelection(selectFiles(directory));
 }
@@ -47,21 +48,24 @@ export function selectFiles(directory: string): Selection {
 export function parseSelection({ root, walk }: Selection): ParseResult {
   const skips: SkippedFile[] = [...walk.skips];
 
+  const packages = indexPackages(root, walk.packageJsonPaths);
+  // Adapters see each file's syntax tree while it exists, so the tree is
+  // dropped after one pass instead of kept for the whole repository.
+  const frameworks = readFrameworks(packages.manifests);
+
   // Contents come from the walk, so ts-morph never touches the disk itself.
   const project = new Project({ useInMemoryFileSystem: true, compilerOptions: { allowJs: true } });
-  const parsed: { file: WalkedFile; imports: RawImport[] }[] = [];
+  const parsed: { file: WalkedFile; imports: RawImport[]; role: string | null }[] = [];
   for (const file of walk.files) {
     try {
       const sourceFile = project.createSourceFile(file.absolutePath, file.text, { overwrite: true });
-      parsed.push({ file, imports: extractImports(sourceFile) });
+      parsed.push({ file, imports: extractImports(sourceFile), role: frameworks.role(file.path, sourceFile) });
       project.removeSourceFile(sourceFile);
     } catch (error) {
       skips.push({ path: file.path, reason: "parse-error", detail: errorMessage(error) });
     }
   }
   skips.sort((a, b) => compare(a.path, b.path));
-
-  const packages = indexPackages(root, walk.packageJsonPaths);
   const parsedPaths = new Set(parsed.map(({ file }) => file.path));
   const resolver = new Resolver(
     root,
@@ -96,24 +100,25 @@ export function parseSelection({ root, walk }: Selection): ParseResult {
   );
   const fan = computeFan([...parsedPaths], edges);
 
-  const roles = assignRoles({ root, files: [...parsedPaths], packageJsons: packages.manifests });
+  const routes = frameworks.routes(skips);
 
   return {
     schemaVersion: SCHEMA_VERSION,
     root,
-    frameworks: roles.frameworks,
-    files: parsed.map(({ file }) => ({
+    frameworks: frameworks.frameworks,
+    files: parsed.map(({ file, role }) => ({
       path: file.path,
       folder: file.folder,
       lines: file.lines,
       bytes: file.bytes,
       hash: file.hash,
-      role: roles.role(file.path),
+      role,
       fanIn: fan.get(file.path)?.fanIn ?? 0,
       fanOut: fan.get(file.path)?.fanOut ?? 0,
     })),
     edges,
-    coverage: buildCoverage(walk.files.length + walk.skips.length, parsed.length, skips, walk.excludedDirectories, records),
+    routes: routes.routes,
+    coverage: buildCoverage(walk.files.length + walk.skips.length, parsed.length, skips, walk.excludedDirectories, records, routes.withheld),
   };
 }
 
@@ -123,6 +128,7 @@ function buildCoverage(
   skips: SkippedFile[],
   excludedDirectories: Coverage["files"]["excludedDirectories"],
   records: ImportRecord[],
+  withheldRoutes: WithheldRoutes[],
 ): Coverage {
   const byOutcome = emptyOutcomes();
   const byKind: Record<EdgeKind, Record<ImportOutcome, number>> = {
@@ -158,6 +164,7 @@ function buildCoverage(
         (a, b) => IMPORT_OUTCOMES.indexOf(b.outcome) - IMPORT_OUTCOMES.indexOf(a.outcome) || b.count - a.count,
       ),
     },
+    routes: { withheld: withheldRoutes },
   };
 }
 

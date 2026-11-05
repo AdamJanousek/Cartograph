@@ -106,7 +106,7 @@ export async function runAnalysis(supabase: Client, analysisId: string): Promise
     stage = "storing";
     await update(supabase, analysisId, {
       status: stage,
-      stage_message: `Storing ${count(result.files.length, "file")} and ${count(result.edges.length, "connection")}`,
+      stage_message: `Storing ${count(result.files.length, "file")}, ${count(result.edges.length, "connection")} and ${count(result.routes.length, "route")}`,
     });
     await store(supabase, analysisId, organizationId, result);
 
@@ -174,9 +174,22 @@ async function store(supabase: Client, analysisId: string, organizationId: strin
     const inserted = await supabase.from("edges").insert(chunk);
     if (inserted.error) throw new Error(`Storing connections failed: ${inserted.error.message}`);
   }
+
+  const routes = result.routes.map((route) => ({
+    organization_id: organizationId,
+    analysis_id: analysisId,
+    file_id: idOf(route.file),
+    method: route.method,
+    pattern: route.pattern,
+    line: route.line,
+  }));
+  for (const chunk of chunks(routes, FILE_CHUNK)) {
+    const inserted = await supabase.from("routes").insert(chunk);
+    if (inserted.error) throw new Error(`Storing routes failed: ${inserted.error.message}`);
+  }
 }
 
-// Edges and roles cascade from files.
+// Edges, roles and routes cascade from files.
 async function clearGraph(supabase: Client, analysisId: string): Promise<void> {
   const deleted = await supabase.from("files").delete().eq("analysis_id", analysisId);
   if (deleted.error) throw new Error(`Clearing stored files failed: ${deleted.error.message}`);

@@ -362,6 +362,7 @@ export type Database = {
           analysis_id: string
           file_id: string
           id: string
+          line: number | null
           method: string
           organization_id: string
           pattern: string
@@ -370,6 +371,7 @@ export type Database = {
           analysis_id: string
           file_id: string
           id?: string
+          line?: number | null
           method: string
           organization_id: string
           pattern: string
@@ -378,6 +380,7 @@ export type Database = {
           analysis_id?: string
           file_id?: string
           id?: string
+          line?: number | null
           method?: string
           organization_id?: string
           pattern?: string
