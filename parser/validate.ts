@@ -2,6 +2,7 @@ import { posix } from "node:path";
 import {
   EDGE_KINDS,
   IMPORT_OUTCOMES,
+  ROUTE_METHODS,
   SCHEMA_VERSION,
   type Coverage,
   type Edge,
@@ -13,13 +14,15 @@ import {
   type ImportRecord,
   type ParseResult,
   type ReasonGroup,
+  type Route,
   type SkippedFile,
   type SkipReason,
+  type WithheldRoutes,
 } from "./types.ts";
 
 // Reads a written result back into the typed shape, rebuilding every object
 // field by field so nothing reaches the caller unchecked. It then checks the
-// things a type can't say: every edge points at a file that exists, fan counts
+// things a type can't say: every edge and route points at a file that exists, fan counts
 // agree with the edges, and the file counts add up.
 
 const IMPORT_REASONS: readonly ImportReason[] = [
@@ -62,6 +65,7 @@ function decodeResult(value: unknown, at: string): ParseResult {
     frameworks: array(o.frameworks, `${at}.frameworks`, string),
     files: array(o.files, `${at}.files`, decodeFile),
     edges: array(o.edges, `${at}.edges`, decodeEdge),
+    routes: array(o.routes, `${at}.routes`, decodeRoute),
     coverage: decodeCoverage(o.coverage, `${at}.coverage`),
   };
 }
@@ -92,11 +96,31 @@ function decodeEdge(value: unknown, at: string): Edge {
   };
 }
 
+function decodeRoute(value: unknown, at: string): Route {
+  const o = object(value, at);
+  return {
+    method: oneOf(o.method, `${at}.method`, ROUTE_METHODS),
+    pattern: string(o.pattern, `${at}.pattern`),
+    file: string(o.file, `${at}.file`),
+    line: nullable(o.line, `${at}.line`, count),
+  };
+}
+
+function decodeWithheld(value: unknown, at: string): WithheldRoutes {
+  const o = object(value, at);
+  return {
+    path: string(o.path, `${at}.path`),
+    line: nullable(o.line, `${at}.line`, count),
+    reason: string(o.reason, `${at}.reason`),
+  };
+}
+
 function decodeCoverage(value: unknown, at: string): Coverage {
   const o = object(value, at);
   const files = object(o.files, `${at}.files`);
   const imports = object(o.imports, `${at}.imports`);
   const byKind = object(imports.byKind, `${at}.imports.byKind`);
+  const routes = object(o.routes, `${at}.routes`);
   const kindCounts = (kind: EdgeKind) => outcomes(byKind[kind], `${at}.imports.byKind.${kind}`);
   return {
     files: {
@@ -111,6 +135,9 @@ function decodeCoverage(value: unknown, at: string): Coverage {
       byOutcome: outcomes(imports.byOutcome, `${at}.imports.byOutcome`),
       byKind: { import: kindCounts("import"), "re-export": kindCounts("re-export"), "dynamic-import": kindCounts("dynamic-import") },
       reasons: array(imports.reasons, `${at}.imports.reasons`, decodeGroup),
+    },
+    routes: {
+      withheld: array(routes.withheld, `${at}.routes.withheld`, decodeWithheld),
     },
   };
 }
@@ -179,6 +206,15 @@ function checkIntegrity(result: ParseResult): void {
   for (const file of result.files) {
     if (file.fanIn !== (fanIn.get(file.path) ?? 0)) fail("$.files", `fanIn of ${file.path} disagrees with edges`);
     if (file.fanOut !== (fanOut.get(file.path) ?? 0)) fail("$.files", `fanOut of ${file.path} disagrees with edges`);
+  }
+
+  const routes = new Set<string>();
+  for (const route of result.routes) {
+    if (!paths.has(route.file)) fail("$.routes", `route in missing file ${route.file}`);
+    if (!route.pattern.startsWith("/")) fail("$.routes", `pattern ${route.pattern} doesn't start with /`);
+    const key = `${route.file}\0${route.method}\0${route.pattern}`;
+    if (routes.has(key)) fail("$.routes", `duplicate route ${route.method} ${route.pattern} in ${route.file}`);
+    routes.add(key);
   }
 
   const files = result.coverage.files;

@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, type ReactNode, use, useMemo, useState } from "react";
-import type { FileType } from "@/graph/categories";
 import { type Folding, fold } from "@/graph/fold";
 import { PANEL_ROWS, panelOrder } from "@/graph/map";
 import type { Selection } from "@/graph/selection";
-import type { Edge, FileNode } from "@/parser/types";
+import type { RailCategory } from "@/parser/taxonomy";
+import type { Edge, FileNode, Route } from "@/parser/types";
 
 // What the map and the detail pane share: which folders are open, how far each
 // is scrolled, what's selected and what's hovered. It lives above both so a
@@ -18,6 +18,7 @@ export type Hover = { kind: "file"; path: string } | { kind: "node"; id: string 
 interface MapState {
   files: readonly FileNode[];
   edges: readonly Edge[];
+  routes: readonly Route[];
   folding: Folding;
   byPath: ReadonlyMap<string, FileNode>;
   open: ReadonlySet<string>;
@@ -27,9 +28,9 @@ interface MapState {
   hover: Hover | null;
   /** Bumped only when a folder opens; closing one leaves the view where it is. */
   opened: number;
-  /** The rail category picked: files of any other type dim, and stay where they are. */
-  category: FileType | null;
-  setCategory: (category: FileType | null) => void;
+  /** The rail category picked: its files are marked on the map, and nothing moves or dims. */
+  category: RailCategory | null;
+  setCategory: (category: RailCategory | null) => void;
   setSelection: (selection: Selection | null) => void;
   setHover: (hover: Hover | null) => void;
   openFolder: (id: string) => void;
@@ -50,10 +51,12 @@ export function useMapState(): MapState {
 export function MapStateProvider({
   files,
   edges,
+  routes,
   children,
 }: {
   files: readonly FileNode[];
   edges: readonly Edge[];
+  routes: readonly Route[];
   children: ReactNode;
 }) {
   const folding = useMemo(() => fold(files), [files]);
@@ -63,7 +66,7 @@ export function MapStateProvider({
   const [selection, setSelection] = useState<Selection | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [opened, setOpened] = useState(0);
-  const [category, setCategory] = useState<FileType | null>(null);
+  const [category, setCategory] = useState<RailCategory | null>(null);
 
   const state = useMemo<MapState>(() => {
     const openFolder = (id: string) => {
@@ -74,6 +77,7 @@ export function MapStateProvider({
     return {
       files,
       edges,
+      routes,
       folding,
       byPath,
       open,
@@ -113,7 +117,7 @@ export function MapStateProvider({
         setSelection({ kind: "row", node, path });
       },
     };
-  }, [files, edges, folding, byPath, open, scroll, selection, hover, opened, category]);
+  }, [files, edges, routes, folding, byPath, open, scroll, selection, hover, opened, category]);
 
   return <MapStateContext value={state}>{children}</MapStateContext>;
 }

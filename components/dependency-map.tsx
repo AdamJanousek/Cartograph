@@ -12,7 +12,7 @@ import {
   useUpdateNodeInternals,
 } from "@xyflow/react";
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
-import { pathColour, typeColour } from "@/components/file-type";
+import { pathColour } from "@/components/file-type";
 import { useMapState } from "@/components/map-state";
 import {
   buildMap,
@@ -24,7 +24,6 @@ import {
   PANEL_ROWS,
   type PanelItem,
 } from "@/graph/map";
-import { type FileType, fileType } from "@/graph/categories";
 import { endKey, highlight, type Relation, rowKey } from "@/graph/selection";
 
 type FoldedNodeData = {
@@ -54,7 +53,7 @@ type PanelNodeData = {
   /** Rows, and above/below lines, holding no file of the rail's category. Empty when none is picked. */
   outside: ReadonlySet<string>;
 };
-type Match = { type: FileType; count: number };
+type Match = { label: string; count: number };
 type MapNode = Node<FoldedNodeData, "folded"> | Node<PanelNodeData, "panel">;
 
 const DIM = 0.25;
@@ -75,7 +74,7 @@ export function DependencyMap() {
 }
 
 function Canvas() {
-  const { files, edges, folding, open, scroll, selection, hover, opened, category, setSelection, setHover, openFolder } =
+  const { files, edges, folding, byPath, open, scroll, selection, hover, opened, category, setSelection, setHover, openFolder } =
     useMapState();
   const { fitView, getZoom } = useReactFlow();
 
@@ -101,21 +100,20 @@ function Canvas() {
   // counts add up to the rail's.
   const filter = useMemo(() => {
     if (category === null) return null;
-    const matches = new Map(
-      folding.nodes.map((node) => [node.id, node.files.filter((path) => fileType(path) === category).length]),
-    );
+    const inside = (path: string) => category.roles.includes(byPath.get(path)?.role ?? null);
+    const matches = new Map(folding.nodes.map((node) => [node.id, node.files.filter(inside).length]));
     const outside = new Map<string, Set<string>>();
     for (const item of model.items) {
       if (item.kind !== "panel") continue;
       const visible = Math.min(item.rows.length, PANEL_ROWS);
-      const some = (rows: typeof item.rows) => rows.some((row) => fileType(row.path) === category);
-      const set = new Set(item.rows.filter((row) => fileType(row.path) !== category).map((row) => row.path));
+      const some = (rows: typeof item.rows) => rows.some((row) => inside(row.path));
+      const set = new Set(item.rows.filter((row) => !inside(row.path)).map((row) => row.path));
       if (!some(item.rows.slice(0, item.offset))) set.add(ABOVE);
       if (!some(item.rows.slice(item.offset + visible))) set.add(BELOW);
       outside.set(item.id, set);
     }
-    return { type: category, matches, outside } satisfies Filter;
-  }, [category, folding, model]);
+    return { label: category.label, matches, outside } satisfies Filter;
+  }, [category, folding, byPath, model]);
 
   const nodes = useMemo<MapNode[]>(
     () =>
@@ -129,8 +127,9 @@ function Canvas() {
           // box, never across its rows.
           zIndex: NODE_Z,
         };
-        const matches = filter && { type: filter.type, count: filter.matches.get(item.id) ?? 0 };
-        const dimmed = (lit !== null && !lit.nodes.has(item.id)) || matches?.count === 0;
+        const matches = filter && { label: filter.label, count: filter.matches.get(item.id) ?? 0 };
+        // A category marks its files and leaves the rest as they are; only a selection dims.
+        const dimmed = lit !== null && !lit.nodes.has(item.id);
         const selected = selection?.kind === "node" && selection.id === item.id;
         const marked = mark?.node === item.id && mark.handle === null;
         if (item.kind === "folded") {
@@ -179,12 +178,9 @@ function Canvas() {
         // Direction is the one thing edge colour means, and the far end wears
         // the same colour: green for what imports the selection, yellow for
         // what the selection imports.
-        // With a category picked, an edge stays only between ends that hold some of it.
-        const away =
-          filteredOut(filter, edge.source, edge.sourceHandle) || filteredOut(filter, edge.target, edge.targetHandle);
         const style = direction
-          ? { stroke: RELATION_COLOUR[direction], strokeWidth: 1.1, opacity: away ? DIM : 1 }
-          : { stroke: "var(--edge)", strokeWidth: 0.75, opacity: lit || away ? DIM_EDGE : 1 };
+          ? { stroke: RELATION_COLOUR[direction], strokeWidth: 1.1 }
+          : { stroke: "var(--edge)", strokeWidth: 0.75, opacity: lit ? DIM_EDGE : 1 };
         return {
           id: edge.id,
           source: edge.source,
@@ -196,7 +192,7 @@ function Canvas() {
           zIndex: direction ? 1 : 0,
         };
       }),
-    [model, lit, filter],
+    [model, lit],
   );
 
   // Runs after the render that carries the new panel, so the fit measures the
@@ -216,12 +212,10 @@ function Canvas() {
       // selectable or there's a node click handler. Neither of the first two
       // applies here, so without this every click falls through to the pane.
       // Panels handle their own header and row clicks, so only folded nodes
-      // act on it. Opening one also selects it, so its connections stand out
-      // the moment it becomes a panel.
+      // act on it. Opening one doesn't select it: the map stays undimmed
+      // until something is picked on purpose.
       onNodeClick={(_, node) => {
-        if (node.type !== "folded") return;
-        openFolder(node.id);
-        setSelection({ kind: "node", id: node.id });
+        if (node.type === "folded") openFolder(node.id);
       }}
       onNodeMouseEnter={(_, node) => setHover({ kind: "node", id: node.id })}
       onNodeMouseLeave={() => setHover(null)}
@@ -245,7 +239,11 @@ function FoldedNode({
     <div
       title={`${item.id} — click to open`}
       className={`flex size-full cursor-pointer flex-col justify-center rounded-[3px] border bg-surface px-[10px] text-left hover:border-accent ${selected ? "border-accent" : "border-border"}`}
-      style={{ ...(relation ? relationBorder(relation) : undefined), ...(marked ? MARK : undefined) }}
+      style={{
+        ...(relation ? relationBorder(relation) : undefined),
+        ...(matches && matches.count > 0 ? MATCH : undefined),
+        ...(marked ? MARK : undefined),
+      }}
     >
       <Handle type="target" position={Position.Left} isConnectable={false} style={hidden} />
       <span
@@ -270,7 +268,9 @@ function PanelNode({
   const { selection, setSelection, setHover, closeFolder, scrollPanel } = useMapState();
   const updateNodeInternals = useUpdateNodeInternals();
   const list = useRef<HTMLDivElement>(null);
-  const rowDimmed = (handle: string) => dimmed || (keptRows !== null && !keptRows.has(handle)) || outside.has(handle);
+  const rowDimmed = (handle: string) => dimmed || (keptRows !== null && !keptRows.has(handle));
+  // With a category picked, its files carry the accent bar; nothing else changes.
+  const matched = (path: string) => matches !== null && !outside.has(path);
   const visible = Math.min(item.rows.length, PANEL_ROWS);
   const scrolls = item.rows.length > PANEL_ROWS;
 
@@ -301,7 +301,7 @@ function PanelNode({
   return (
     <div
       className={`flex size-full flex-col overflow-hidden rounded-[3px] border bg-surface ${selected ? "border-accent" : dimmed ? "border-border" : "border-text-muted"}`}
-      style={marked ? MARK : undefined}
+      style={{ ...(matches && matches.count > 0 ? MATCH : undefined), ...(marked ? MARK : undefined) }}
     >
       {/* The name selects the panel; the rest of the header closes it. */}
       <div
@@ -350,7 +350,11 @@ function PanelNode({
               onMouseLeave={() => setHover({ kind: "node", id: item.id })}
               title={row.path}
               className={`flex w-full shrink-0 cursor-pointer snap-start items-center gap-2 px-[10px] text-left hover:bg-surface-raised ${selectedRow === row.path ? "bg-accent/10" : ""}`}
-              style={{ height: PANEL_ROW, ...(markedHandle === row.path ? MARK_ROW : undefined) }}
+              style={{
+                height: PANEL_ROW,
+                ...(matched(row.path) ? MATCH : undefined),
+                ...(markedHandle === row.path ? MARK_ROW : undefined),
+              }}
             >
               <span
                 aria-hidden
@@ -405,13 +409,14 @@ function PanelNode({
   );
 }
 
-// With a category picked, how many of the node's files are of it, marked with
-// the category's own swatch.
+// With a category picked, how many of the node's files are in it.
 function FileCount({ count, matches }: { count: number; matches: Match | null }) {
   if (!matches) return <>{count} files</>;
   return (
-    <span className="inline-flex items-center gap-1" title={`${matches.count} of ${count} files are ${matches.type}`}>
-      <span aria-hidden className="size-2 rounded-[2px]" style={{ background: typeColour(matches.type) }} />
+    <span
+      title={`${matches.count} of ${count} files are ${matches.label}`}
+      className={matches.count > 0 ? "text-accent" : undefined}
+    >
       {matches.count} of {count}
     </span>
   );
@@ -419,13 +424,8 @@ function FileCount({ count, matches }: { count: number; matches: Match | null })
 
 const NONE: ReadonlySet<string> = new Set();
 
-type Filter = { type: FileType; matches: ReadonlyMap<string, number>; outside: ReadonlyMap<string, ReadonlySet<string>> };
+type Filter = { label: string; matches: ReadonlyMap<string, number>; outside: ReadonlyMap<string, ReadonlySet<string>> };
 
-/** An end with nothing of the category in it: a folded node with no matches, or a row or line outside it. */
-function filteredOut(filter: Filter | null, node: string, handle: string | null): boolean {
-  if (filter === null) return false;
-  return handle === null ? filter.matches.get(node) === 0 : (filter.outside.get(node)?.has(handle) ?? false);
-}
 
 // ←n in green is what imports this; n→ in yellow is what this imports. The
 // same two colours mark edges and their ends when something is selected.
@@ -483,6 +483,9 @@ function RowHandles({ id, top }: { id: string; top: number }) {
     </>
   );
 }
+
+/** The accent bar down a box's or row's left edge: it holds files of the rail's category. */
+const MATCH = { boxShadow: "inset 2px 0 0 var(--accent)" } as const;
 
 const hidden = { opacity: 0, pointerEvents: "none" } as const;
 

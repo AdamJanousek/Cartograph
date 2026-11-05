@@ -1,7 +1,7 @@
 // The parser's output. Everything downstream reads this shape, so changing it
 // means bumping SCHEMA_VERSION and updating the validator in the same change.
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export type EdgeKind = "import" | "re-export" | "dynamic-import";
 
@@ -96,6 +96,43 @@ export type ExcludedDirectory = {
   reason: "dependencies" | "hidden" | "build-output" | "symlink";
 };
 
+export type RouteMethod = "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS" | "SEARCH" | "ALL";
+
+export const ROUTE_METHODS: readonly RouteMethod[] = ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "SEARCH", "ALL"];
+
+/**
+ * A route a framework adapter read off the syntax. Both the method and the
+ * whole pattern were written in the code or follow from its file's path;
+ * nothing is guessed, and a route that can't be read that way isn't here.
+ */
+export type Route = {
+  method: RouteMethod;
+  /** As the framework writes it: "/users/:id" for NestJS, "/users/[id]" for Next.js. */
+  pattern: string;
+  /** The file that declares it. */
+  file: string;
+  /** Where in that file; null when the route comes from the file's path and nothing in it marks the spot. */
+  line: number | null;
+};
+
+/** The order routes are listed in: by pattern, then method, then file. */
+export function compareRoutes(a: Route, b: Route): number {
+  const byText = (x: string, y: string) => (x < y ? -1 : x > y ? 1 : 0);
+  return (
+    byText(a.pattern, b.pattern) ||
+    ROUTE_METHODS.indexOf(a.method) - ROUTE_METHODS.indexOf(b.method) ||
+    byText(a.file, b.file)
+  );
+}
+
+/** Routes an adapter would have read but didn't, because the code doesn't pin them down. */
+export type WithheldRoutes = {
+  /** A package directory when the whole package's routes are withheld, otherwise a file. */
+  path: string;
+  line: number | null;
+  reason: string;
+};
+
 // The types inside Coverage are aliases, not interfaces, so the report can be
 // stored as JSON as it is: only aliases satisfy a JSON index signature.
 export type Coverage = {
@@ -114,6 +151,9 @@ export type Coverage = {
     byKind: Record<EdgeKind, Record<ImportOutcome, number>>;
     reasons: ReasonGroup[];
   };
+  routes: {
+    withheld: WithheldRoutes[];
+  };
 };
 
 export interface ParseResult {
@@ -124,5 +164,7 @@ export interface ParseResult {
   frameworks: string[];
   files: FileNode[];
   edges: Edge[];
+  /** Sorted by pattern, then method, then file. */
+  routes: Route[];
   coverage: Coverage;
 }

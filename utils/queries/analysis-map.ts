@@ -1,6 +1,6 @@
 import { computeFan, dedupeEdges, type EdgeInput } from "@/graph/edges";
 import type { EdgeKind, ParseResult } from "@/parser/types";
-import { SCHEMA_VERSION } from "@/parser/types";
+import { compareRoutes, SCHEMA_VERSION } from "@/parser/types";
 import { checkParseResult } from "@/parser/validate";
 import { compare, folderOf } from "@/parser/walk";
 import { createClient } from "@/utils/supabase/server";
@@ -49,6 +49,17 @@ export async function getAnalysisMap(
     return data;
   });
 
+  const routeRows = await readAll(async (from, to) => {
+    const { data, error } = await supabase
+      .from("routes")
+      .select("file_id, method, pattern, line")
+      .eq("analysis_id", analysisId)
+      .order("id")
+      .range(from, to);
+    if (error) throw new Error(`Reading routes failed: ${error.message}`);
+    return data;
+  });
+
   const pathOf = new Map(files.map((file) => [file.id, file.path]));
   const inputs: EdgeInput[] = edgeRows.map((row) => {
     const from = pathOf.get(row.source_file_id);
@@ -62,7 +73,7 @@ export async function getAnalysisMap(
   const paths = files.map((file) => file.path);
   const fan = computeFan(paths, edges);
 
-  return checkParseResult({
+  const result = checkParseResult({
     schemaVersion: SCHEMA_VERSION,
     root: `${analysis.owner}/${analysis.name}`,
     frameworks: analysis.frameworks,
@@ -79,8 +90,12 @@ export async function getAnalysisMap(
       }))
       .sort((a, b) => compare(a.path, b.path)),
     edges,
+    // Raw rows: the validator checks each method and that its file was stored.
+    routes: routeRows.map((row) => ({ method: row.method, pattern: row.pattern, file: pathOf.get(row.file_id) ?? "", line: row.line })),
     coverage: analysis.coverage,
   });
+  result.routes.sort(compareRoutes);
+  return result;
 }
 
 async function readAll<T>(page: (from: number, to: number) => Promise<T[]>): Promise<T[]> {

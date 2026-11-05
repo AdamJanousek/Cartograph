@@ -1,6 +1,7 @@
 import type { Edge, FileNode, ParseResult } from "../parser/types.ts";
 import { type Category, categorize, type FileType, fileType } from "./categories.ts";
 import { type FoldedNode, groupFan } from "./fold.ts";
+import { railCategories } from "../parser/taxonomy.ts";
 
 // What the detail pane says, derived from the parser's output and nothing else.
 
@@ -13,6 +14,8 @@ export interface RankedFile {
 export interface RepositorySummary {
   /** Frameworks detected in any package; null when none was. */
   framework: string | null;
+  /** Categories the rail lists for those frameworks, empty ones it pins included. */
+  categories: number;
   files: number;
   /** Source files the walk found but couldn't parse. */
   skipped: number;
@@ -32,6 +35,7 @@ export function summarize(result: ParseResult): RepositorySummary {
   const { files, coverage } = result;
   return {
     framework: result.frameworks.length === 0 ? null : result.frameworks.join(", "),
+    categories: railCategories(result.frameworks, files.map((file) => file.role)).length,
     files: files.length,
     skipped: coverage.files.skipped,
     imports: coverage.imports.total,
