@@ -5,6 +5,7 @@ import { ROLE } from "../taxonomy.ts";
 import { compareRoutes, type Route, type SkippedFile, type WithheldRoutes } from "../types.ts";
 import { compare } from "../walk.ts";
 import { docusaurus } from "./docusaurus.ts";
+import { express } from "./express.ts";
 import { nestjs } from "./nestjs.ts";
 import { nextjs } from "./nextjs.ts";
 import { react } from "./react.ts";
@@ -16,8 +17,10 @@ import { type FrameworkAdapter, isTestPath, type PackageReader, parts } from "./
 // adapter is chosen per package.json, not once for the whole repository.
 
 // Detection order, fixed; a package gets the first adapter that detects it.
-// Next.js and Docusaurus both declare react, so React comes after them.
-const ADAPTERS: readonly FrameworkAdapter[] = [nestjs, nextjs, docusaurus, react];
+// Next.js and Docusaurus both declare react, so React comes after them. A
+// package declaring express and react is a server that renders React, so
+// Express comes before React too.
+const ADAPTERS: readonly FrameworkAdapter[] = [nestjs, nextjs, docusaurus, express, react];
 
 /**
  * Conventions every JavaScript toolchain shares, whatever the framework: test

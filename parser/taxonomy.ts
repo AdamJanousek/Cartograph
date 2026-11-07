@@ -48,7 +48,10 @@ export const ROLE = {
   filter: "filter",
   strategy: "strategy",
   decorator: "decorator",
-  // Next.js and NestJS both
+  // Express
+  router: "router",
+  model: "model",
+  // Next.js, NestJS and Express
   middleware: "middleware",
   // Docusaurus
   themeOverride: "theme override",
@@ -65,6 +68,7 @@ export const FRAMEWORK = {
   nest: "nestjs",
   next: "next.js",
   docusaurus: "docusaurus",
+  express: "express",
   react: "react",
 } as const;
 
@@ -88,6 +92,8 @@ const COMPONENTS: Definition = { label: "Components", roles: [ROLE.component] };
 const HOOKS: Definition = { label: "Hooks", roles: [ROLE.hook] };
 const MIDDLEWARE: Definition = { label: "Middleware", roles: [ROLE.middleware] };
 const ENTRY_POINTS: Definition = { label: "Entry points", roles: [ROLE.entryPoint] };
+const CONTROLLERS: Definition = { label: "Controllers", roles: [ROLE.controller] };
+const SERVICES: Definition = { label: "Services", roles: [ROLE.service] };
 
 // The first `pinned` categories of a framework show even at zero: for those,
 // "none" is an answer. The rest show only when something is in them.
@@ -95,8 +101,8 @@ const RAILS: Record<string, { pinned: number; categories: readonly Definition[] 
   [FRAMEWORK.nest]: {
     pinned: 4,
     categories: [
-      { label: "Controllers", roles: [ROLE.controller] },
-      { label: "Services", roles: [ROLE.service] },
+      CONTROLLERS,
+      SERVICES,
       { label: "Modules", roles: [ROLE.module] },
       { label: "Entities", roles: [ROLE.entity] },
       { label: "Resolvers", roles: [ROLE.resolver] },
@@ -140,6 +146,10 @@ const RAILS: Record<string, { pinned: number; categories: readonly Definition[] 
     pinned: 1,
     categories: [PAGE_ROUTES, { label: "Theme overrides", roles: [ROLE.themeOverride] }],
   },
+  [FRAMEWORK.express]: {
+    pinned: 2,
+    categories: [{ label: "Routers", roles: [ROLE.router] }, CONTROLLERS, { label: "Models", roles: [ROLE.model] }, MIDDLEWARE, SERVICES],
+  },
   [FRAMEWORK.react]: {
     pinned: 2,
     categories: [COMPONENTS, HOOKS, ENTRY_POINTS],
@@ -147,7 +157,13 @@ const RAILS: Record<string, { pinned: number; categories: readonly Definition[] 
 };
 
 /** The order frameworks are detected in, which is also the order their rails stack in. */
-export const FRAMEWORK_ORDER: readonly string[] = [FRAMEWORK.nest, FRAMEWORK.next, FRAMEWORK.docusaurus, FRAMEWORK.react];
+export const FRAMEWORK_ORDER: readonly string[] = [
+  FRAMEWORK.nest,
+  FRAMEWORK.next,
+  FRAMEWORK.docusaurus,
+  FRAMEWORK.express,
+  FRAMEWORK.react,
+];
 
 const TOOLCHAIN: readonly Definition[] = [
   { label: "Tests", roles: [ROLE.test] },

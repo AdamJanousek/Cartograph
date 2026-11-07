@@ -13,6 +13,7 @@ const EDGE_KIND: Record<string, EdgeKind> = {
   import: "import",
   re_export: "re-export",
   dynamic_import: "dynamic-import",
+  require: "require",
 };
 
 /**

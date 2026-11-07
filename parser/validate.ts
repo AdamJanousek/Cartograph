@@ -38,6 +38,7 @@ const IMPORT_REASONS: readonly ImportReason[] = [
   "workspace-package-not-found",
   "undeclared-bare-specifier",
   "non-literal-dynamic-import",
+  "non-literal-require",
 ];
 const SKIP_REASONS: readonly SkipReason[] = ["too-large", "minified", "not-utf8", "symlink", "read-error", "parse-error"];
 const DIRECTORY_REASONS: readonly ExcludedDirectory["reason"][] = ["dependencies", "hidden", "build-output", "symlink"];
@@ -133,7 +134,12 @@ function decodeCoverage(value: unknown, at: string): Coverage {
     imports: {
       total: count(imports.total, `${at}.imports.total`),
       byOutcome: outcomes(imports.byOutcome, `${at}.imports.byOutcome`),
-      byKind: { import: kindCounts("import"), "re-export": kindCounts("re-export"), "dynamic-import": kindCounts("dynamic-import") },
+      byKind: {
+        import: kindCounts("import"),
+        "re-export": kindCounts("re-export"),
+        "dynamic-import": kindCounts("dynamic-import"),
+        require: kindCounts("require"),
+      },
       reasons: array(imports.reasons, `${at}.imports.reasons`, decodeGroup),
     },
     routes: {

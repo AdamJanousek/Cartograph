@@ -1,11 +1,11 @@
 // The parser's output. Everything downstream reads this shape, so changing it
 // means bumping SCHEMA_VERSION and updating the validator in the same change.
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
-export type EdgeKind = "import" | "re-export" | "dynamic-import";
+export type EdgeKind = "import" | "re-export" | "dynamic-import" | "require";
 
-export const EDGE_KINDS: readonly EdgeKind[] = ["import", "re-export", "dynamic-import"];
+export const EDGE_KINDS: readonly EdgeKind[] = ["import", "re-export", "dynamic-import", "require"];
 
 export interface FileNode {
   /** Repository-relative, forward slashes. The file's identity everywhere. */
@@ -54,14 +54,15 @@ export type UnresolvedReason =
   | "alias-not-found"
   | "workspace-package-not-found"
   | "undeclared-bare-specifier"
-  | "non-literal-dynamic-import";
+  | "non-literal-dynamic-import"
+  | "non-literal-require";
 
 export type ImportReason = ExternalReason | ExcludedReason | UnresolvedReason;
 
 /** A single import as written in a file, and what became of it. */
 export type ImportRecord = {
   from: string;
-  /** The module specifier as written; null for a non-literal dynamic import. */
+  /** The module specifier as written; null for a non-literal dynamic import or require(). */
   specifier: string | null;
   kind: EdgeKind;
   line: number;

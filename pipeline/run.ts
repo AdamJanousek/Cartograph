@@ -15,6 +15,7 @@ const EDGE_KIND_COLUMN: Record<EdgeKind, string> = {
   import: "import",
   "re-export": "re_export",
   "dynamic-import": "dynamic_import",
+  require: "require",
 };
 
 /**

@@ -80,12 +80,19 @@ export function parseSelection({ root, walk }: Selection): ParseResult {
     for (const raw of imports) {
       const resolution =
         raw.specifier === null
-          ? {
-              outcome: "unresolved" as const,
-              reason: "non-literal-dynamic-import" as const,
-              target: null,
-              detail: "import() argument is not a string literal",
-            }
+          ? raw.kind === "require"
+            ? {
+                outcome: "unresolved" as const,
+                reason: "non-literal-require" as const,
+                target: null,
+                detail: "require() argument is not a single string literal",
+              }
+            : {
+                outcome: "unresolved" as const,
+                reason: "non-literal-dynamic-import" as const,
+                target: null,
+                detail: "import() argument is not a string literal",
+              }
           : resolver.resolve(file.path, file.folder, raw.specifier);
       records.push({ from: file.path, specifier: raw.specifier, kind: raw.kind, line: raw.line, typeOnly: raw.typeOnly, ...resolution });
     }
@@ -135,6 +142,7 @@ function buildCoverage(
     import: emptyOutcomes(),
     "re-export": emptyOutcomes(),
     "dynamic-import": emptyOutcomes(),
+    require: emptyOutcomes(),
   };
   const groups = new Map<string, ReasonGroup>();
 
