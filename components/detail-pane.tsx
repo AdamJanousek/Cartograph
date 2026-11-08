@@ -1,6 +1,8 @@
 "use client";
 
 import { type ReactNode, useMemo, useState } from "react";
+import type { Tracing } from "@/ai/client";
+import { ExplanationView, type Fetched, targetKey } from "@/components/explanation";
 import { typeColour } from "@/components/file-type";
 import { useMapState } from "@/components/map-state";
 import { MARK, PathRow, split, usePathTarget } from "@/components/path-row";
@@ -28,10 +30,27 @@ const SUMMARY_ROWS = 10;
 const INCOMING = "var(--incoming)";
 const OUTGOING = "var(--outgoing)";
 
-export function DetailPane({ name, summary }: { name: string; summary: RepositorySummary }) {
+export function DetailPane({
+  name,
+  summary,
+  analysisId,
+  tracing,
+  labelledByModel,
+}: {
+  name: string;
+  summary: RepositorySummary;
+  analysisId: string;
+  tracing: Tracing;
+  /** Files whose role a model assigned, because no convention did. */
+  labelledByModel: readonly string[];
+}) {
   const { selection, folding, byPath, edges } = useMapState();
   // Kept here, above the selection, so switching files keeps the tab that's open.
   const [tab, setTab] = useState<Tab>("structure");
+  // Every explanation fetched, by what it explains. Above the selection too,
+  // so coming back to a file shows its explanation without asking again.
+  const [explanations, setExplanations] = useState<ReadonlyMap<string, Fetched>>(new Map());
+  const modelLabelled = useMemo(() => new Set(labelledByModel), [labelledByModel]);
 
   const detail = useMemo((): { kind: "file"; file: FileDetail } | { kind: "folder"; folder: FolderDetail } | null => {
     if (!selection) return null;
@@ -67,9 +86,24 @@ export function DetailPane({ name, summary }: { name: string; summary: Repositor
       </div>
       <div role="tabpanel" className="min-h-0 flex-1 overflow-auto">
         {tab === "explanation" ? (
-          <p className="px-3 py-3 text-[12px] text-text-muted">No explanation yet.</p>
+          (() => {
+            const target =
+              detail.kind === "file"
+                ? { kind: "file" as const, path: detail.file.file.path }
+                : { kind: "folder" as const, id: detail.folder.id };
+            return (
+              <ExplanationView
+                key={targetKey(target)}
+                analysisId={analysisId}
+                target={target}
+                fetched={explanations.get(targetKey(target))}
+                onFetched={(key, fetched) => setExplanations((current) => new Map(current).set(key, fetched))}
+                tracing={tracing}
+              />
+            );
+          })()
         ) : detail.kind === "file" ? (
-          <FileView detail={detail.file} />
+          <FileView detail={detail.file} labelledByModel={modelLabelled.has(detail.file.file.path)} />
         ) : (
           <FolderView detail={detail.folder} />
         )}
@@ -206,7 +240,7 @@ const WALKS: { direction: Direction; label: string; colour: string }[] = [
   { direction: "dependencies", label: "Dependency chain", colour: OUTGOING },
 ];
 
-function FileView({ detail }: { detail: FileDetail }) {
+function FileView({ detail, labelledByModel }: { detail: FileDetail; labelledByModel: boolean }) {
   const { file, type, imports, importers } = detail;
   const { edges } = useMapState();
   // Keyed to the file, so selecting another one — including a file in the
@@ -229,8 +263,14 @@ function FileView({ detail }: { detail: FileDetail }) {
           </span>
         </Fact>
         <Fact label="Folder">{file.folder === "." ? "/" : file.folder}</Fact>
-        {/* Only when a convention named it; "no role" would read as a finding. */}
-        {file.role !== null && <Fact label="Role">{file.role}</Fact>}
+        {/* Only when something named it; "no role" would read as a finding. A
+            model's label says so, because a convention's is a fact and it isn't. */}
+        {file.role !== null && (
+          <Fact label="Role">
+            {file.role}
+            {labelledByModel && <span className="font-sans text-text-muted"> · labelled by model</span>}
+          </Fact>
+        )}
         <Fact label="Length">{file.lines} lines</Fact>
         {/* The same lists' lengths as the sections below, so the two always agree. */}
         <Fact label="Depends on">

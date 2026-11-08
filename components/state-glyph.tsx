@@ -10,6 +10,7 @@ export const PHASE: Record<AnalysisStatus, Phase> = {
   selecting: "working",
   parsing: "working",
   storing: "working",
+  labelling: "working",
   complete: "done",
   failed: "failed",
 };

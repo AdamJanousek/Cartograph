@@ -14,6 +14,7 @@ import { summarize } from "@/graph/summary";
 import { isStale } from "@/utils/progress";
 import { getAnalysis } from "@/utils/queries/analyses";
 import { getAnalysisMap } from "@/utils/queries/analysis-map";
+import { tracing } from "@/ai/client";
 
 // One address for an analysis: its progress while it runs, its map once it's
 // complete. The progress view refreshes when the run ends, which is what
@@ -66,7 +67,15 @@ async function Analysis({ params }: { params: PageProps<"/analyses/[id]">["param
             <InsightsPanel insights={findInsights(result.files, result.edges)} />
           </>
         }
-        details={<DetailPane name={`${owner}/${name}`} summary={summarize(result)} />}
+        details={
+          <DetailPane
+            name={`${owner}/${name}`}
+            summary={summarize(result)}
+            analysisId={analysis.id}
+            tracing={tracing}
+            labelledByModel={result.labelledByModel}
+          />
+        }
       >
         <WorkspaceViews withheld={result.coverage.routes.withheld} />
       </Shell>

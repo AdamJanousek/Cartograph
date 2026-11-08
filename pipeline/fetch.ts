@@ -137,3 +137,39 @@ function isReadEntry(entry: ReadEntry | object): entry is ReadEntry {
 function megabytes(bytes: number): string {
   return `${Math.round(bytes / 1024 / 1024)} MB`;
 }
+
+// ---------------------------------------------------------------------------
+// After a run: one file, and where the repository is now
+// ---------------------------------------------------------------------------
+
+const LOOKUP_TIMEOUT_MS = 15_000;
+
+/**
+ * The commit the default branch points at now. Read from git's own ref
+ * advertisement rather than the REST API, so like the archive it needs no
+ * token and has no hourly limit.
+ */
+export async function headCommit(repository: Repository): Promise<string> {
+  const label = `${repository.owner}/${repository.name}`;
+  const response = await fetch(`https://github.com/${label}.git/info/refs?service=git-upload-pack`, {
+    headers: { "User-Agent": "git/2 cartograph" },
+    signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`GitHub answered ${response.status} when asked where ${label} is now.`);
+  const head = /([0-9a-f]{40}) HEAD\0/.exec(await response.text());
+  if (!head) throw new Error(`GitHub didn't say which commit ${label} is at now.`);
+  return head[1];
+}
+
+/** One file's bytes at a commit, or null when the file isn't there. */
+export async function fetchFileAt(repository: Repository, commitSha: string, path: string): Promise<Buffer | null> {
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  const response = await fetch(
+    `https://raw.githubusercontent.com/${repository.owner}/${repository.name}/${commitSha}/${encoded}`,
+    { signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) },
+  );
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`GitHub answered ${response.status} when asked for ${path} at ${commitSha.slice(0, 7)}.`);
+  return Buffer.from(await response.arrayBuffer());
+}

@@ -25,13 +25,13 @@ const EDGE_KIND: Record<string, EdgeKind> = {
 export async function getAnalysisMap(
   analysisId: string,
   analysis: { frameworks: string[]; coverage: unknown; owner: string; name: string },
-): Promise<ParseResult> {
+): Promise<StoredMap> {
   const supabase = await createClient();
 
   const files = await readAll(async (from, to) => {
     const { data, error } = await supabase
       .from("files")
-      .select("id, path, lines, bytes, content_hash, file_roles(role)")
+      .select("id, path, lines, bytes, content_hash, file_roles(role, source)")
       .eq("analysis_id", analysisId)
       .order("id")
       .range(from, to);
@@ -96,8 +96,12 @@ export async function getAnalysisMap(
     coverage: analysis.coverage,
   });
   result.routes.sort(compareRoutes);
-  return result;
+  const labelledByModel = files.filter((file) => file.file_roles[0]?.source === "model").map((file) => file.path);
+  return { ...result, labelledByModel };
 }
+
+/** The parser's shape, plus which roles a model assigned rather than a convention. */
+export type StoredMap = ParseResult & { labelledByModel: string[] };
 
 async function readAll<T>(page: (from: number, to: number) => Promise<T[]>): Promise<T[]> {
   const rows: T[] = [];

@@ -58,6 +58,8 @@ export const ROLE = {
   // Every toolchain
   test: "test",
   config: "config",
+  // Only ever assigned by the model, to files no adapter identified.
+  util: "util",
   declarations: "declarations",
 } as const;
 

@@ -1,10 +1,12 @@
 import type { Database } from "@/types/database";
 import type { Client } from "@/utils/supabase/server";
 import { parseSelection, selectFiles, type EdgeKind, type ParseResult } from "../parser/index.ts";
+import { flushTraces } from "../ai/client.ts";
+import { labelUnidentified } from "../ai/label.ts";
 import { fetchArchive, type Archive, type Repository } from "./fetch.ts";
 
 type Status = Database["public"]["Enums"]["analysis_status"];
-type Stage = Extract<Status, "fetching" | "selecting" | "parsing" | "storing">;
+type Stage = Extract<Status, "fetching" | "selecting" | "parsing" | "storing" | "labelling">;
 
 // Small enough that each insert finishes well inside the 8-second statement
 // timeout Supabase gives signed-in requests.
@@ -85,7 +87,13 @@ export async function runAnalysis(supabase: Client, analysisId: string): Promise
     const { owner, name } = row.data.project;
     const organizationId = row.data.organization_id;
 
-    await update(supabase, analysisId, { status: stage, stage_message: `Downloading ${owner}/${name} from GitHub` });
+    // A re-analysis starts on a row that may have failed before.
+    await update(supabase, analysisId, {
+      status: stage,
+      stage_message: `Downloading ${owner}/${name} from GitHub`,
+      failed_stage: null,
+      failure: null,
+    });
     archive = await fetchArchive({ owner, name });
 
     stage = "selecting";
@@ -109,7 +117,26 @@ export async function runAnalysis(supabase: Client, analysisId: string): Promise
       status: stage,
       stage_message: `Storing ${count(result.files.length, "file")}, ${count(result.edges.length, "connection")} and ${count(result.routes.length, "route")}`,
     });
-    await store(supabase, analysisId, organizationId, result);
+    const fileIds = await store(supabase, analysisId, organizationId, result);
+
+    // After storing, so the graph is complete before any model is asked. A
+    // failure here fails the run like any other stage; the stored graph stays.
+    stage = "labelling";
+    const unidentified = result.files.filter((file) => file.role === null).length;
+    await update(supabase, analysisId, {
+      status: stage,
+      stage_message: `Labelling ${count(unidentified, "file")} no framework convention identified`,
+    });
+    await labelUnidentified({
+      supabase,
+      analysisId,
+      organizationId,
+      directory: archive.directory,
+      frameworks: result.frameworks,
+      files: result.files,
+      edges: result.edges,
+      fileIds,
+    });
 
     await update(supabase, analysisId, {
       status: "complete",
@@ -121,10 +148,17 @@ export async function runAnalysis(supabase: Client, analysisId: string): Promise
     await recordFailure(supabase, analysisId, stage, error);
   } finally {
     await archive?.remove();
+    await flushTraces().catch((error: unknown) => console.error("Sending traces to LangSmith failed:", error));
   }
 }
 
-async function store(supabase: Client, analysisId: string, organizationId: string, result: ParseResult): Promise<void> {
+/** Returns each stored file's row id by path. */
+async function store(
+  supabase: Client,
+  analysisId: string,
+  organizationId: string,
+  result: ParseResult,
+): Promise<Map<string, string>> {
   // Starts from nothing, so storing twice can't collide with itself.
   await clearGraph(supabase, analysisId);
 
@@ -188,6 +222,7 @@ async function store(supabase: Client, analysisId: string, organizationId: strin
     const inserted = await supabase.from("routes").insert(chunk);
     if (inserted.error) throw new Error(`Storing routes failed: ${inserted.error.message}`);
   }
+  return fileIds;
 }
 
 // Edges, roles and routes cascade from files.
