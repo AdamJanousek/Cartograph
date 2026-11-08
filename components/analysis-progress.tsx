@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { isFinished, STAGE_LABEL, STAGES } from "@/utils/progress";
 import type { AnalysisDetail } from "@/utils/queries/analyses";
+import { ReanalyseButton } from "./explanation";
 import { StateGlyph, type Phase } from "./state-glyph";
 import { useAnalysisStage } from "./use-analysis-stage";
 
@@ -76,6 +77,7 @@ export function AnalysisProgress({ analysis, stale }: { analysis: AnalysisDetail
           <div>
             <p>Failed while {analysis.failed_stage}.</p>
             <p className="mt-1 text-text-muted">{analysis.failure}</p>
+            <ReanalyseButton analysisId={analysis.id} />
           </div>
         )}
         {stale && (

@@ -1,13 +1,14 @@
 import type { AnalysisStatus } from "@/types/database";
 
 /** The stages a run moves through, in order. */
-export const STAGES = ["fetching", "selecting", "parsing", "storing"] as const satisfies readonly AnalysisStatus[];
+export const STAGES = ["fetching", "selecting", "parsing", "storing", "labelling"] as const satisfies readonly AnalysisStatus[];
 
 export const STAGE_LABEL: Record<(typeof STAGES)[number], string> = {
   fetching: "Fetch archive",
   selecting: "Select files",
   parsing: "Parse imports",
   storing: "Store map",
+  labelling: "Label files",
 };
 
 export function isFinished(status: AnalysisStatus): boolean {
@@ -47,6 +48,7 @@ const STATUS: Record<AnalysisStatus, true> = {
   selecting: true,
   parsing: true,
   storing: true,
+  labelling: true,
   complete: true,
   failed: true,
 };

@@ -33,7 +33,7 @@ export async function getAnalysis(id: string) {
   const { data, error } = await supabase
     .from("analyses")
     .select(
-      "id, status, stage_message, failed_stage, failure, commit_sha, updated_at, frameworks, coverage, project:projects(owner, name)",
+      "id, organization_id, status, stage_message, failed_stage, failure, commit_sha, updated_at, frameworks, coverage, project:projects(owner, name)",
     )
     .eq("id", id)
     .maybeSingle();

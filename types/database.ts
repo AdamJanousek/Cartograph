@@ -357,6 +357,54 @@ export type Database = {
           },
         ]
       }
+      role_labels: {
+        Row: {
+          analysis_id: string
+          content_hash: string
+          created_at: string
+          id: string
+          model: string
+          organization_id: string
+          path: string
+          role: string | null
+        }
+        Insert: {
+          analysis_id: string
+          content_hash: string
+          created_at?: string
+          id?: string
+          model: string
+          organization_id: string
+          path: string
+          role?: string | null
+        }
+        Update: {
+          analysis_id?: string
+          content_hash?: string
+          created_at?: string
+          id?: string
+          model?: string
+          organization_id?: string
+          path?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_labels_analysis_id_organization_id_fkey"
+            columns: ["analysis_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "role_labels_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       routes: {
         Row: {
           analysis_id: string
@@ -423,6 +471,7 @@ export type Database = {
         | "selecting"
         | "parsing"
         | "storing"
+        | "labelling"
         | "complete"
         | "failed"
     }
