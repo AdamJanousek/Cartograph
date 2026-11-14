@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { flushTraces } from "@/ai/client";
@@ -114,6 +115,31 @@ export async function reanalyse(analysisId: string): Promise<void> {
   if (claimed.error) throw new Error(`Starting the re-analysis failed: ${claimed.error.message}`);
   if (claimed.data.length === 1) after(() => runAnalysis(supabase, analysisId));
   redirect(`/analyses/${analysisId}`);
+}
+
+/**
+ * Removes a repository and its analysis, with everything stored for it. A run
+ * still going finds its rows gone and fails its next write, which then matches
+ * nothing.
+ */
+export async function removeAnalysis(analysisId: string): Promise<{ error: string | null }> {
+  if (typeof analysisId !== "string") return { error: "Nothing to remove." };
+  // The policy is what enforces this; checking first gives a clear answer.
+  const { has } = await auth();
+  if (!has({ role: "org:admin" })) return { error: "Only an organization admin can remove a repository." };
+  const supabase = await createClient();
+  // The policy limits both the read and the delete to the caller's organization.
+  const found = await supabase.from("analyses").select("project_id").eq("id", analysisId).maybeSingle();
+  if (found.error) return { error: `Finding the repository failed: ${found.error.message}` };
+  if (!found.data) {
+    refresh();
+    return { error: null };
+  }
+  const removed = await supabase.from("projects").delete().eq("id", found.data.project_id).select("id");
+  if (removed.error) return { error: `Removing the repository failed: ${removed.error.message}` };
+  if (removed.data.length === 0) return { error: "Only an organization admin can remove a repository." };
+  refresh();
+  return { error: null };
 }
 
 function messageOf(error: unknown): string {

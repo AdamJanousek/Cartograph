@@ -88,60 +88,12 @@ export async function labelUnidentified(run: Labelling): Promise<LabelSummary> {
 
   async function ask(files: readonly FileNode[]): Promise<Map<string, ModelRole | null>> {
     const described = await Promise.all(
-      files.map(async (file) => {
-        const source = await readFile(join(run.directory, file.path), "utf8");
-        const excerpt = source.split("\n").slice(0, EXCERPT_LINES).join("\n").slice(0, EXCERPT_CHARS);
-        const list = (paths: string[] | undefined) =>
-          paths?.length ? paths.slice(0, NEIGHBOURS).join(", ") + (paths.length > NEIGHBOURS ? ` and ${paths.length - NEIGHBOURS} more` : "") : "none";
-        return [
-          `### ${file.path}`,
-          `imports: ${list(imports.get(file.path))}`,
-          `imported by: ${list(importers.get(file.path))}`,
-          "```",
-          excerpt,
-          "```",
-        ].join("\n");
-      }),
+      files.map(async (file) => ({
+        path: file.path,
+        text: describeForLabel(file.path, await readFile(join(run.directory, file.path), "utf8"), imports.get(file.path), importers.get(file.path)),
+      })),
     );
-
-    // One line per file rather than JSON: this endpoint doesn't enforce a
-    // schema for this model, and the line format comes back reliably.
-    const completion = await model().chat.completions.create({
-      model: MODEL.label,
-      temperature: 0,
-      max_tokens: 40 * files.length + 100,
-      messages: [
-        {
-          role: "system",
-          content: [
-            "You label source files in a TypeScript or JavaScript repository by the role each plays.",
-            `Choose exactly one of: ${MODEL_ROLES.join(", ")}, or none when the excerpt doesn't make the role clear; a wrong label is worse than none.`,
-            "service: business logic other code calls. repository: data access. model: data shapes or ORM models. util: small general-purpose helpers. config: configuration values or setup. component: a UI component. hook: a React hook.",
-            "Answer with one line per file and nothing else, using each file's exact path, in the form:",
-            "<path> => <role>",
-          ].join("\n"),
-        },
-        {
-          role: "user",
-          content: `Frameworks detected: ${run.frameworks.join(", ") || "none"}.\n\n${described.join("\n\n")}`,
-        },
-      ],
-    });
-
-    const answered = new Map<string, ModelRole | null>();
-    const asked = new Set(files.map((file) => file.path));
-    // Checked rather than trusted: an unasked path or an unlisted role is
-    // dropped, and a file left out stays unidentified and uncached.
-    for (const line of textOf(completion).split("\n")) {
-      const match = /^\s*[-*]?\s*`?(.+?)`?\s*=>\s*`?([a-z]+)`?\s*$/i.exec(line);
-      if (!match) continue;
-      const [, path, role] = match;
-      const answer = role.toLowerCase();
-      if (!asked.has(path)) continue;
-      if (answer === "none") answered.set(path, null);
-      else if (isModelRole(answer)) answered.set(path, answer);
-    }
-    return answered;
+    return askRoles(described, run.frameworks);
   }
 
   const labels = new Map<string, ModelRole>();
@@ -163,6 +115,59 @@ export async function labelUnidentified(run: Labelling): Promise<LabelSummary> {
     if (inserted.error) throw new Error(`Storing labels failed: ${inserted.error.message}`);
   }
   return { files: unidentified.length, labelled: labels.size };
+}
+
+/** How a file is put to the model: its path, its neighbours' paths and the opening of its source. Never its role. */
+export function describeForLabel(path: string, source: string, imports: readonly string[] | undefined, importers: readonly string[] | undefined): string {
+  const excerpt = source.split("\n").slice(0, EXCERPT_LINES).join("\n").slice(0, EXCERPT_CHARS);
+  const list = (paths: readonly string[] | undefined) =>
+    paths?.length ? paths.slice(0, NEIGHBOURS).join(", ") + (paths.length > NEIGHBOURS ? ` and ${paths.length - NEIGHBOURS} more` : "") : "none";
+  return [`### ${path}`, `imports: ${list(imports)}`, `imported by: ${list(importers)}`, "```", excerpt, "```"].join("\n");
+}
+
+/** One model call for a batch of described files. A file missing from the answer is missing from the map. */
+export async function askRoles(
+  files: readonly { path: string; text: string }[],
+  frameworks: readonly string[],
+): Promise<Map<string, ModelRole | null>> {
+  // One line per file rather than JSON: this endpoint doesn't enforce a
+  // schema for this model, and the line format comes back reliably.
+  const completion = await model().chat.completions.create({
+    model: MODEL.label,
+    temperature: 0,
+    max_tokens: 40 * files.length + 100,
+    messages: [
+      {
+        role: "system",
+        content: [
+          "You label source files in a TypeScript or JavaScript repository by the role each plays.",
+          `Choose exactly one of: ${MODEL_ROLES.join(", ")}, or none when the excerpt doesn't make the role clear; a wrong label is worse than none.`,
+          "service: business logic other code calls. repository: data access. model: data shapes or ORM models. util: small general-purpose helpers. config: configuration values or setup. component: a UI component. hook: a React hook.",
+          "Answer with one line per file and nothing else, using each file's exact path, in the form:",
+          "<path> => <role>",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: `Frameworks detected: ${frameworks.join(", ") || "none"}.\n\n${files.map((file) => file.text).join("\n\n")}`,
+      },
+    ],
+  });
+
+  const answered = new Map<string, ModelRole | null>();
+  const asked = new Set(files.map((file) => file.path));
+  // Checked rather than trusted: an unasked path or an unlisted role is
+  // dropped, and a file left out stays unidentified and uncached.
+  for (const line of textOf(completion).split("\n")) {
+    const match = /^\s*[-*]?\s*`?(.+?)`?\s*=>\s*`?([a-z]+)`?\s*$/i.exec(line);
+    if (!match) continue;
+    const [, path, role] = match;
+    const answer = role.toLowerCase();
+    if (!asked.has(path)) continue;
+    if (answer === "none") answered.set(path, null);
+    else if (isModelRole(answer)) answered.set(path, answer);
+  }
+  return answered;
 }
 
 export function isModelRole(value: unknown): value is ModelRole {
