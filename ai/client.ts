@@ -1,4 +1,5 @@
 import { Client } from "langsmith";
+import type { RunTree } from "langsmith/run_trees";
 import { wrapOpenAI } from "langsmith/wrappers/openai";
 import OpenAI from "openai";
 
@@ -37,6 +38,38 @@ if (!tracing.on) console.warn(`AI calls are not being traced: ${tracing.reason}.
 
 const langsmith = tracing.on ? new Client() : undefined;
 
+/** The LangSmith client, for scripts that read traces or run experiments. They fail loudly without one. */
+export function traces(): Client {
+  if (!langsmith) throw new Error(`LangSmith isn't configured, so there's nothing to read or record: ${tracing.on ? "" : tracing.reason}.`);
+  return langsmith;
+}
+
+let projectId: Promise<string> | null = null;
+/** Feedback still being sent, so a flush waits for it as well as for the runs. */
+const pending = new Set<Promise<unknown>>();
+
+/**
+ * Attaches a score to a traced run, the way a live evaluator would. Sent in
+ * the background with the trace's own batch; a failure is logged, never
+ * thrown, because the answer it scores has already been given.
+ */
+export function recordFeedback(run: RunTree | undefined, feedback: { key: string; score: number; comment?: string }): void {
+  if (!langsmith || !run || !tracing.on) return;
+  const client = langsmith;
+  const project = tracing.project;
+  projectId ??= client.readProject({ projectName: project }).then((found) => found.id);
+  const sent = projectId
+    .then((sessionId) =>
+      client.createFeedback({ runId: run.id, traceId: run.trace_id, startTime: run.start_time, sessionId, ...feedback }),
+    )
+    .catch((error: unknown) => {
+      projectId = null;
+      console.error(`Recording ${feedback.key} on run ${run.id} failed:`, error);
+    })
+    .finally(() => pending.delete(sent));
+  pending.add(sent);
+}
+
 let client: OpenAI | null = null;
 
 /** The traced OpenAI client. Built on first use, so a missing key fails the call that needs it, not the app. */
@@ -60,6 +93,7 @@ export function traceAs(name: string) {
 
 /** Waits for recorded runs to reach LangSmith; for after a response, or the end of a script. */
 export async function flushTraces(): Promise<void> {
+  await Promise.all(pending);
   await langsmith?.awaitPendingTraceBatches();
 }
 

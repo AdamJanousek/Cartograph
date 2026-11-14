@@ -1,5 +1,7 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { LiveState } from "@/components/live-state";
+import { RemoveAnalysis } from "@/components/remove-analysis";
 import { isStale } from "@/utils/progress";
 import {
   LIST_LIMIT,
@@ -29,9 +31,9 @@ function formatExact(iso: string) {
   return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
 }
 
-function Row({ analysis, now }: { analysis: AnalysisListItem; now: number }) {
+function Row({ analysis, now, canRemove }: { analysis: AnalysisListItem; now: number; canRemove: boolean }) {
   return (
-    <tr className="h-7 border-b border-border">
+    <tr className="group h-7 border-b border-border">
       <td className="truncate pr-4 pl-3 font-mono">
         {analysis.project && (
           <Link href={`/analyses/${analysis.id}`} className="hover:text-accent">
@@ -59,12 +61,22 @@ function Row({ analysis, now }: { analysis: AnalysisListItem; now: number }) {
           {formatRelative(analysis.updated_at, now)}
         </time>
       </td>
+      {canRemove && (
+        <td className="pr-3 text-right">
+          <RemoveAnalysis
+            analysisId={analysis.id}
+            label={analysis.project ? `${analysis.project.owner}/${analysis.project.name}` : "this analysis"}
+          />
+        </td>
+      )}
     </tr>
   );
 }
 
 export async function AnalysisList() {
-  const { analyses, readAt: now } = await listAnalyses();
+  const [{ analyses, readAt: now }, { has }] = await Promise.all([listAnalyses(), auth()]);
+  // Only admins can remove a repository, so only admins see the column.
+  const canRemove = has({ role: "org:admin" });
 
   if (analyses.length === 0) {
     return (
@@ -86,6 +98,7 @@ export async function AnalysisList() {
           <col className="w-28" />
           <col className="w-24" />
           <col className="w-32" />
+          {canRemove && <col className="w-20" />}
         </colgroup>
         <thead className="sticky top-0 bg-bg text-[11px] text-text-muted">
           <tr className="h-7 border-b border-border">
@@ -93,11 +106,16 @@ export async function AnalysisList() {
             <th className="pr-4 font-normal">State</th>
             <th className="pr-4 font-normal">Commit</th>
             <th className="pr-3 text-right font-normal">Updated</th>
+            {canRemove && (
+              <th className="pr-3 font-normal">
+                <span className="sr-only">Actions</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
           {analyses.map((analysis) => (
-            <Row key={analysis.id} analysis={analysis} now={now} />
+            <Row key={analysis.id} analysis={analysis} now={now} canRemove={canRemove} />
           ))}
         </tbody>
       </table>
